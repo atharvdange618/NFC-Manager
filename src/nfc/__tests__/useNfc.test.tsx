@@ -141,7 +141,7 @@ describe('cancelScan', () => {
   ): Promise<{ done: Promise<void> }> {
     let done: Promise<void> = Promise.resolve();
     await ReactTestRenderer.act(async () => {
-      done = action === 'read' ? hook().readNfc() : hook().writeNfc('hi');
+      done = action === 'read' ? hook().readNfc() : hook().writeNfc('hi', 'text');
     });
     return { done };
   }
@@ -201,7 +201,7 @@ describe('cancelScan', () => {
     const hook = await renderUseNfc();
 
     const { done } = await startPending(hook, 'read');
-    await ReactTestRenderer.act(() => hook().writeNfc('hi'));
+    await ReactTestRenderer.act(() => hook().writeNfc('hi', 'text'));
 
     expect(nfc.requestTechnology).toHaveBeenCalledTimes(1);
     expect(hook().pending).toBe('read');
@@ -223,7 +223,7 @@ describe('writeNfc', () => {
     nfc.ndefHandler.writeNdefMessage.mockResolvedValue();
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().writeNfc('hello'));
+    await ReactTestRenderer.act(() => hook().writeNfc('hello', 'text'));
 
     expect(hook().message).toEqual({ kind: 'success', text: 'Wrote: "hello"' });
   });
@@ -234,7 +234,7 @@ describe('writeNfc', () => {
     );
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().writeNfc('hello'));
+    await ReactTestRenderer.act(() => hook().writeNfc('hello', 'text'));
 
     expect(hook().message).toEqual({
       kind: 'error',
@@ -245,11 +245,76 @@ describe('writeNfc', () => {
   it('rejects empty text', async () => {
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().writeNfc('   '));
+    await ReactTestRenderer.act(() => hook().writeNfc('   ', 'text'));
 
     expect(hook().message).toEqual({
       kind: 'error',
       text: 'Enter text to write',
     });
+  });
+});
+
+describe('writeNfc record kinds', () => {
+  const url = 'https://x.com/atharvdangedev';
+
+  it('writes a text record in text mode', async () => {
+    nfc.ndefHandler.writeNdefMessage.mockResolvedValue();
+    const hook = await renderUseNfc();
+
+    await ReactTestRenderer.act(() => hook().writeNfc('hello', 'text'));
+
+    expect(nfc.ndefHandler.writeNdefMessage).toHaveBeenCalledWith(
+      Ndef.encodeMessage([Ndef.textRecord('hello')]),
+    );
+  });
+
+  it('writes a URI record in url mode', async () => {
+    nfc.ndefHandler.writeNdefMessage.mockResolvedValue();
+    const hook = await renderUseNfc();
+
+    await ReactTestRenderer.act(() => hook().writeNfc(url, 'url'));
+
+    expect(nfc.ndefHandler.writeNdefMessage).toHaveBeenCalledWith(
+      Ndef.encodeMessage([Ndef.uriRecord(url)]),
+    );
+    expect(hook().message).toEqual({ kind: 'success', text: `Wrote: "${url}"` });
+  });
+
+  it('trims whitespace around a URL', async () => {
+    nfc.ndefHandler.writeNdefMessage.mockResolvedValue();
+    const hook = await renderUseNfc();
+
+    await ReactTestRenderer.act(() => hook().writeNfc(`  ${url}\n`, 'url'));
+
+    expect(nfc.ndefHandler.writeNdefMessage).toHaveBeenCalledWith(
+      Ndef.encodeMessage([Ndef.uriRecord(url)]),
+    );
+  });
+
+  it.each(['x.com/atharvdangedev', 'ftp://x.com', 'https://', 'https://x .com'])(
+    'rejects %p in url mode without touching NFC',
+    async input => {
+      const hook = await renderUseNfc();
+
+      await ReactTestRenderer.act(() => hook().writeNfc(input, 'url'));
+
+      expect(hook().message).toEqual({
+        kind: 'error',
+        text: 'Enter a URL starting with http:// or https://',
+      });
+      expect(nfc.requestTechnology).not.toHaveBeenCalled();
+    },
+  );
+
+  it('reads a URI record back as the URL', async () => {
+    const [record] = Ndef.decodeMessage(
+      Ndef.encodeMessage([Ndef.uriRecord(url)]),
+    );
+    nfc.getTag.mockResolvedValue({ id: '01', ndefMessage: [record] });
+    const hook = await renderUseNfc();
+
+    await ReactTestRenderer.act(() => hook().readNfc());
+
+    expect(hook().message).toEqual({ kind: 'success', text: `Tag read: ${url}` });
   });
 });

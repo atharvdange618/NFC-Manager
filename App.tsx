@@ -10,13 +10,14 @@ import {
   TextInput,
 } from 'react-native';
 import { useTheme } from './src/theme/useTheme';
-import { useNfc } from './src/nfc/useNfc';
+import { RecordKind, useNfc } from './src/nfc/useNfc';
 import { Card } from './src/components/Card';
 import { PrimaryButton } from './src/components/PrimaryButton';
 import { SectionHeader } from './src/components/SectionHeader';
 import { StatusCard } from './src/components/StatusCard';
 import { MessageBanner } from './src/components/MessageBanner';
 import { TagInfoCard } from './src/components/TagInfoCard';
+import { RecordKindToggle } from './src/components/RecordKindToggle';
 
 const App = () => {
   const { theme, isDarkMode } = useTheme();
@@ -30,7 +31,13 @@ const App = () => {
     cancelScan,
     writeNfc,
   } = useNfc();
-  const [writeText, setWriteText] = useState('Hello from React Native NFC!');
+  const [writeKind, setWriteKind] = useState<RecordKind>('text');
+  // Each kind keeps its own input, so toggling doesn't lose what you typed.
+  const [inputs, setInputs] = useState<Record<RecordKind, string>>({
+    text: 'Hello from React Native NFC!',
+    url: 'https://',
+  });
+  const isUrl = writeKind === 'url';
 
   return (
     <SafeAreaView
@@ -72,8 +79,9 @@ const App = () => {
         <Card>
           <SectionHeader
             title="✍️ Write NFC Tag"
-            description="Enter text and write it to an NFC tag"
+            description="Write text, or a URL that opens without the app"
           />
+          <RecordKindToggle value={writeKind} onChange={setWriteKind} />
           <TextInput
             style={[
               styles.input,
@@ -83,20 +91,28 @@ const App = () => {
                 color: theme.text,
               },
             ]}
-            onChangeText={setWriteText}
-            value={writeText}
-            placeholder="Enter text to write to tag"
+            onChangeText={value =>
+              setInputs(prev => ({ ...prev, [writeKind]: value }))
+            }
+            value={inputs[writeKind]}
+            placeholder={
+              isUrl ? 'https://example.com' : 'Enter text to write to tag'
+            }
             placeholderTextColor={theme.textTertiary}
-            multiline
-            numberOfLines={3}
+            multiline={!isUrl}
+            numberOfLines={isUrl ? 1 : 3}
             textAlignVertical="top"
+            // Android would capitalise "Https://" and autocorrect the path
+            autoCapitalize={isUrl ? 'none' : 'sentences'}
+            autoCorrect={!isUrl}
+            keyboardType={isUrl ? 'url' : 'default'}
           />
           {pending === 'write' && Platform.OS === 'android' ? (
             <PrimaryButton label="Cancel" onPress={cancelScan} />
           ) : (
             <PrimaryButton
               label="Write to Tag"
-              onPress={() => writeNfc(writeText)}
+              onPress={() => writeNfc(inputs[writeKind], writeKind)}
             />
           )}
         </Card>

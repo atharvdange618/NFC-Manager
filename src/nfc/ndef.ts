@@ -8,16 +8,31 @@ export function recordTypeName(record: NdefRecord): string {
     : String.fromCharCode(...record.type);
 }
 
-export function isTextRecord(record: NdefRecord): boolean {
-  return (
-    record.tnf === Ndef.TNF_WELL_KNOWN &&
-    recordTypeName(record) === Ndef.RTD_TEXT
-  );
+function isWellKnown(record: NdefRecord, type: string): boolean {
+  return record.tnf === Ndef.TNF_WELL_KNOWN && recordTypeName(record) === type;
 }
 
-// Text records decode to their string; anything else falls back to hex.
+export function isTextRecord(record: NdefRecord): boolean {
+  return isWellKnown(record, Ndef.RTD_TEXT);
+}
+
+export function isUriRecord(record: NdefRecord): boolean {
+  return isWellKnown(record, Ndef.RTD_URI);
+}
+
+// Records decodeRecord can turn into readable text.
+export function isKnownRecord(record: NdefRecord): boolean {
+  return isTextRecord(record) || isUriRecord(record);
+}
+
+// Text and URI records decode to their string; anything else falls back to hex.
 export function decodeRecord(record: NdefRecord): string {
-  return isTextRecord(record)
-    ? Ndef.text.decodePayload(new Uint8Array(record.payload))
-    : Ndef.util.bytesToHexString(record.payload);
+  const payload = new Uint8Array(record.payload);
+  if (isTextRecord(record)) {
+    return Ndef.text.decodePayload(payload);
+  }
+  if (isUriRecord(record)) {
+    return Ndef.uri.decodePayload(payload);
+  }
+  return Ndef.util.bytesToHexString(record.payload);
 }

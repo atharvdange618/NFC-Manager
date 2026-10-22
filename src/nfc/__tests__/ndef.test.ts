@@ -1,5 +1,10 @@
 import { Ndef, NdefRecord } from 'react-native-nfc-manager';
-import { decodeRecord, isTextRecord, recordTypeName } from '../ndef';
+import {
+  decodeRecord,
+  isKnownRecord,
+  isTextRecord,
+  recordTypeName,
+} from '../ndef';
 
 jest.mock('react-native-nfc-manager/src/NativeNfcManager');
 
@@ -59,5 +64,27 @@ describe('recordTypeName', () => {
     expect(
       recordTypeName({ tnf: Ndef.TNF_WELL_KNOWN, type: [0x54], payload: [] }),
     ).toBe('T');
+  });
+});
+
+describe('URI records', () => {
+  const uriRecord = (): NdefRecord => {
+    const [record] = Ndef.decodeMessage(
+      Ndef.encodeMessage([Ndef.uriRecord('https://x.com/atharvdangedev')]),
+    );
+    return record;
+  };
+
+  it('decodes a URI record with a byte-array type, as Android returns it', () => {
+    expect(decodeRecord({ ...uriRecord(), type: [0x55] })).toBe(
+      'https://x.com/atharvdangedev',
+    );
+  });
+
+  it('is recognised as a known record', () => {
+    expect(isKnownRecord({ ...uriRecord(), type: [0x55] })).toBe(true);
+    expect(isKnownRecord({ tnf: Ndef.TNF_MIME_MEDIA, type: 'x', payload: [] })).toBe(
+      false,
+    );
   });
 });

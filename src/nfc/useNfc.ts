@@ -1,7 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import NfcManager, { Ndef, NfcError, TagEvent } from 'react-native-nfc-manager';
 import { withNdef } from './withNdef';
-import { decodeRecord, isTextRecord } from './ndef';
+import { decodeRecord, isKnownRecord } from './ndef';
+
+export type RecordKind = 'text' | 'url';
+
+// http(s) scheme, then at least one non-space character.
+const URL_PATTERN = /^https?:\/\/\S+$/i;
 
 export interface NfcMessage {
   kind: 'info' | 'success' | 'error';
@@ -73,7 +78,7 @@ export function useNfc() {
         let parsed = 'No NDEF data.';
         if (tag?.ndefMessage?.length) {
           const rec = tag.ndefMessage[0];
-          parsed = isTextRecord(rec)
+          parsed = isKnownRecord(rec)
             ? decodeRecord(rec)
             : `Raw payload: ${decodeRecord(rec)}`;
         }
@@ -93,7 +98,7 @@ export function useNfc() {
   }, []);
 
   const writeNfc = useCallback(
-    async (text: string) => {
+    async (input: string, kind: RecordKind) => {
       if (pending) {
         return;
       }
@@ -104,7 +109,16 @@ export function useNfc() {
         });
         return;
       }
-      if (!text.trim()) {
+      // Text is written as typed; a URL is trimmed so stray spaces don't break it.
+      const value = kind === 'url' ? input.trim() : input;
+      if (kind === 'url' && !URL_PATTERN.test(value)) {
+        setMessage({
+          kind: 'error',
+          text: 'Enter a URL starting with http:// or https://',
+        });
+        return;
+      }
+      if (!value.trim()) {
         setMessage({ kind: 'error', text: 'Enter text to write' });
         return;
       }
@@ -113,9 +127,11 @@ export function useNfc() {
       setPending('write');
       try {
         await withNdef(async () => {
-          const bytes = Ndef.encodeMessage([Ndef.textRecord(text)]);
+          const record =
+            kind === 'url' ? Ndef.uriRecord(value) : Ndef.textRecord(value);
+          const bytes = Ndef.encodeMessage([record]);
           await NfcManager.ndefHandler.writeNdefMessage(bytes);
-          setMessage({ kind: 'success', text: `Wrote: "${text}"` });
+          setMessage({ kind: 'success', text: `Wrote: "${value}"` });
         }, 'Approach tag to write');
       } catch (ex: unknown) {
         setMessage(failureMessage('Write', ex));
