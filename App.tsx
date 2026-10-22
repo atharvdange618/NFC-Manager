@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -19,8 +20,16 @@ import { TagInfoCard } from './src/components/TagInfoCard';
 
 const App = () => {
   const { theme, isDarkMode } = useTheme();
-  const { nfcSupported, nfcEnabled, scannedTag, message, readNfc, writeNfc } =
-    useNfc();
+  const {
+    nfcSupported,
+    nfcEnabled,
+    scannedTag,
+    message,
+    pending,
+    readNfc,
+    cancelScan,
+    writeNfc,
+  } = useNfc();
   const [writeText, setWriteText] = useState('Hello from React Native NFC!');
 
   return (
@@ -52,7 +61,12 @@ const App = () => {
             title="📖 Read NFC Tag"
             description="Tap to scan and read data from an NFC tag"
           />
-          <PrimaryButton label="Start Reading" onPress={readNfc} />
+          {/* iOS shows its own scan sheet with a cancel button */}
+          {pending === 'read' && Platform.OS === 'android' ? (
+            <PrimaryButton label="Cancel" onPress={cancelScan} />
+          ) : (
+            <PrimaryButton label="Start Reading" onPress={readNfc} />
+          )}
         </Card>
 
         <Card>
@@ -77,10 +91,14 @@ const App = () => {
             numberOfLines={3}
             textAlignVertical="top"
           />
-          <PrimaryButton
-            label="Write to Tag"
-            onPress={() => writeNfc(writeText)}
-          />
+          {pending === 'write' && Platform.OS === 'android' ? (
+            <PrimaryButton label="Cancel" onPress={cancelScan} />
+          ) : (
+            <PrimaryButton
+              label="Write to Tag"
+              onPress={() => writeNfc(writeText)}
+            />
+          )}
         </Card>
 
         {scannedTag && <TagInfoCard tag={scannedTag} />}

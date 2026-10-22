@@ -103,7 +103,7 @@ describe('readNfc', () => {
 
     await ReactTestRenderer.act(() => hook().readNfc());
 
-    expect(hook().message).toEqual({ kind: 'info', text: 'Scan cancelled' });
+    expect(hook().message).toEqual({ kind: 'info', text: 'Read cancelled' });
   });
 
   it('refuses to read when NFC is disabled', async () => {
@@ -117,6 +117,95 @@ describe('readNfc', () => {
       text: 'NFC disabled; enable in settings',
     });
     expect(nfc.requestTechnology).not.toHaveBeenCalled();
+  });
+});
+
+describe('cancelScan', () => {
+  // Mirrors Android: cancelTechnologyRequest rejects the pending request.
+  function pendingRequest() {
+    nfc.requestTechnology.mockImplementation(
+      () =>
+        new Promise((_resolve, reject) => {
+          nfc.cancelTechnologyRequest.mockImplementation(async () => {
+            reject(new NfcError.UserCancel());
+          });
+        }),
+    );
+  }
+
+  // Returns the action's promise wrapped, so awaiting the helper doesn't
+  // also wait for the still-pending action.
+  async function startPending(
+    hook: () => ReturnType<typeof useNfc>,
+    action: 'read' | 'write',
+  ): Promise<{ done: Promise<void> }> {
+    let done: Promise<void> = Promise.resolve();
+    await ReactTestRenderer.act(async () => {
+      done = action === 'read' ? hook().readNfc() : hook().writeNfc('hi');
+    });
+    return { done };
+  }
+
+  async function cancel(hook: () => ReturnType<typeof useNfc>, done: Promise<void>) {
+    await ReactTestRenderer.act(async () => {
+      hook().cancelScan();
+      await done;
+    });
+  }
+
+  it.each(['read', 'write'] as const)(
+    'marks %s as pending while waiting for a tag',
+    async action => {
+      pendingRequest();
+      const hook = await renderUseNfc();
+
+      const { done } = await startPending(hook, action);
+      expect(hook().pending).toBe(action);
+
+      await cancel(hook, done);
+      expect(hook().pending).toBeNull();
+    },
+  );
+
+  it('cancels a pending read and shows "Read cancelled"', async () => {
+    pendingRequest();
+    const hook = await renderUseNfc();
+
+    await cancel(hook, (await startPending(hook, 'read')).done);
+
+    expect(nfc.cancelTechnologyRequest).toHaveBeenCalled();
+    expect(hook().message).toEqual({ kind: 'info', text: 'Read cancelled' });
+  });
+
+  it('cancels a pending write and shows "Write cancelled"', async () => {
+    pendingRequest();
+    const hook = await renderUseNfc();
+
+    await cancel(hook, (await startPending(hook, 'write')).done);
+
+    expect(nfc.ndefHandler.writeNdefMessage).not.toHaveBeenCalled();
+    expect(hook().message).toEqual({ kind: 'info', text: 'Write cancelled' });
+  });
+
+  it('ignores a write while a read is pending', async () => {
+    pendingRequest();
+    const hook = await renderUseNfc();
+
+    const { done } = await startPending(hook, 'read');
+    await ReactTestRenderer.act(() => hook().writeNfc('hi'));
+
+    expect(nfc.requestTechnology).toHaveBeenCalledTimes(1);
+    expect(hook().pending).toBe('read');
+    await cancel(hook, done);
+  });
+
+  it('is not pending after a read finishes', async () => {
+    nfc.getTag.mockResolvedValue({ id: '01', ndefMessage: [] });
+    const hook = await renderUseNfc();
+
+    await ReactTestRenderer.act(() => hook().readNfc());
+
+    expect(hook().pending).toBeNull();
   });
 });
 
