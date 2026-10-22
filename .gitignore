@@ -34,3 +34,8 @@ google-services.json
 # Android Profiling
 *.hprof
 node_modules
+
+# Expo prebuild output
+/android
+/ios
+.expo/

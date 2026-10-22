@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -8,6 +7,7 @@ import {
   View,
   TextInput,
 } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from './src/theme/useTheme';
 import { RecordKind, useNfc } from './src/nfc/useNfc';
 import { Card } from './src/components/Card';
@@ -39,87 +39,91 @@ const App = () => {
   const isUrl = writeKind === 'url';
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background }]}
-    >
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={theme.background}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={{ backgroundColor: theme.background }}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaProvider>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.background }]}
       >
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.text }]}>NFC Manager</Text>
-          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            Read and write NFC tags with ease
-          </Text>
-        </View>
+        <StatusBar
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          backgroundColor={theme.background}
+        />
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          style={{ backgroundColor: theme.background }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Text style={[styles.title, { color: theme.text }]}>
+              NFC Manager
+            </Text>
+            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+              Read and write NFC tags with ease
+            </Text>
+          </View>
 
-        <StatusCard nfcSupported={nfcSupported} nfcEnabled={nfcEnabled} />
+          <StatusCard nfcSupported={nfcSupported} nfcEnabled={nfcEnabled} />
 
-        {message ? <MessageBanner message={message} /> : null}
+          {message ? <MessageBanner message={message} /> : null}
 
-        <Card>
-          <SectionHeader
-            title="Read NFC Tag"
-            description="Tap to scan and read data from an NFC tag"
-          />
-          {pending === 'read' ? (
-            <PrimaryButton label="Cancel" onPress={cancelScan} />
-          ) : (
-            <PrimaryButton label="Start Reading" onPress={readNfc} />
-          )}
-        </Card>
-
-        <Card>
-          <SectionHeader
-            title="Write NFC Tag"
-            description="Write text, or a URL that opens without the app"
-          />
-          <RecordKindToggle value={writeKind} onChange={setWriteKind} />
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.surface,
-                borderColor: theme.border,
-                color: theme.text,
-              },
-            ]}
-            onChangeText={value =>
-              setInputs(prev => ({ ...prev, [writeKind]: value }))
-            }
-            value={inputs[writeKind]}
-            placeholder={
-              isUrl ? 'https://example.com' : 'Enter text to write to tag'
-            }
-            placeholderTextColor={theme.textTertiary}
-            multiline={!isUrl}
-            numberOfLines={isUrl ? 1 : 3}
-            textAlignVertical="top"
-            // Android would capitalise "Https://" and autocorrect the path
-            autoCapitalize={isUrl ? 'none' : 'sentences'}
-            autoCorrect={!isUrl}
-            keyboardType={isUrl ? 'url' : 'default'}
-          />
-          {pending === 'write' ? (
-            <PrimaryButton label="Cancel" onPress={cancelScan} />
-          ) : (
-            <PrimaryButton
-              label="Write to Tag"
-              onPress={() => writeNfc(inputs[writeKind], writeKind)}
+          <Card>
+            <SectionHeader
+              title="Read NFC Tag"
+              description="Tap to scan and read data from an NFC tag"
             />
-          )}
-        </Card>
+            {pending === 'read' ? (
+              <PrimaryButton label="Cancel" onPress={cancelScan} />
+            ) : (
+              <PrimaryButton label="Start Reading" onPress={readNfc} />
+            )}
+          </Card>
 
-        {scannedTag && <TagInfoCard tag={scannedTag} />}
+          <Card>
+            <SectionHeader
+              title="Write NFC Tag"
+              description="Write text, or a URL that opens without the app"
+            />
+            <RecordKindToggle value={writeKind} onChange={setWriteKind} />
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border,
+                  color: theme.text,
+                },
+              ]}
+              onChangeText={value =>
+                setInputs(prev => ({ ...prev, [writeKind]: value }))
+              }
+              value={inputs[writeKind]}
+              placeholder={
+                isUrl ? 'https://example.com' : 'Enter text to write to tag'
+              }
+              placeholderTextColor={theme.textTertiary}
+              multiline={!isUrl}
+              numberOfLines={isUrl ? 1 : 3}
+              textAlignVertical="top"
+              // Android would capitalise "Https://" and autocorrect the path
+              autoCapitalize={isUrl ? 'none' : 'sentences'}
+              autoCorrect={!isUrl}
+              keyboardType={isUrl ? 'url' : 'default'}
+            />
+            {pending === 'write' ? (
+              <PrimaryButton label="Cancel" onPress={cancelScan} />
+            ) : (
+              <PrimaryButton
+                label="Write to Tag"
+                onPress={() => writeNfc(inputs[writeKind], writeKind)}
+              />
+            )}
+          </Card>
 
-        <View style={styles.footer} />
-      </ScrollView>
-    </SafeAreaView>
+          {scannedTag && <TagInfoCard tag={scannedTag} />}
+
+          <View style={styles.footer} />
+        </ScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
