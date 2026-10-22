@@ -38,8 +38,8 @@ Only one read or write can run at a time. Starting a second one while the first 
 ## Screenshots
 
 <div align="center">
-  <img src="./assets/Screenshot_1752600051.png" alt="Light mode" width="250"/>
-  <img src="./assets/Screenshot_1752600082.png" alt="Dark mode" width="250"/>
+  <img src="./assets/light.jpg" alt="Light mode" width="250"/>
+  <img src="./assets/dark.jpg" alt="Dark mode" width="250"/>
 </div>
 
 ## Getting Started
