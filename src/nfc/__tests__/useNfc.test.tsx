@@ -187,6 +187,15 @@ describe('cancelScan', () => {
     expect(hook().message).toEqual({ kind: 'info', text: 'Write cancelled' });
   });
 
+  it('does not log a warning when the user cancels', async () => {
+    pendingRequest();
+    const hook = await renderUseNfc();
+
+    await cancel(hook, (await startPending(hook, 'write')).done);
+
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
   it('ignores a write while a read is pending', async () => {
     pendingRequest();
     const hook = await renderUseNfc();

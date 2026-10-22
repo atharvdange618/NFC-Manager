@@ -13,10 +13,10 @@ function errorText(ex: unknown): string {
 }
 
 function failureMessage(action: 'Read' | 'Write', ex: unknown): NfcMessage {
-  console.warn(`NFC ${action.toLowerCase()} error`, ex);
   if (ex instanceof NfcError.UserCancel) {
     return { kind: 'info', text: `${action} cancelled` };
   }
+  console.warn(`NFC ${action.toLowerCase()} error`, ex);
   return { kind: 'error', text: `${action} failed: ${errorText(ex)}` };
 }
 
