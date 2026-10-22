@@ -3,7 +3,10 @@ import ReactTestRenderer from 'react-test-renderer';
 import NfcManager, { Ndef, NfcError } from 'react-native-nfc-manager';
 import { useNfc } from '../useNfc';
 
-jest.mock('react-native-nfc-manager/src/NativeNfcManager');
+// v4 loads the compiled dist/ module, but ships its mock next to src/.
+jest.mock('react-native-nfc-manager/dist/src/NativeNfcManager', () =>
+  jest.requireActual('react-native-nfc-manager/src/__mocks__/NativeNfcManager'),
+);
 jest.mock('react-native-nfc-manager', () => {
   const actual = jest.requireActual('react-native-nfc-manager');
   return {

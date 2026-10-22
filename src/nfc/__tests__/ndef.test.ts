@@ -6,7 +6,10 @@ import {
   recordTypeName,
 } from '../ndef';
 
-jest.mock('react-native-nfc-manager/src/NativeNfcManager');
+// v4 loads the compiled dist/ module, but ships its mock next to src/.
+jest.mock('react-native-nfc-manager/dist/src/NativeNfcManager', () =>
+  jest.requireActual('react-native-nfc-manager/src/__mocks__/NativeNfcManager'),
+);
 
 const textRecord = (text: string): NdefRecord => {
   const [record] = Ndef.decodeMessage(Ndef.encodeMessage([Ndef.textRecord(text)]));

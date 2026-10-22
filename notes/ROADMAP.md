@@ -27,11 +27,11 @@ This file tracks the work from the current single-screen app to a v1 we can publ
 
 ## Phase 0: Migrate to Expo (3 to 4 hours)
 
-- [ ] Create the Expo app config (`app.config.ts`): name, package, `newArchEnabled`, `userInterfaceStyle`, NFC plugin.
-- [ ] Move `App.tsx` and `src/` over. Keep `src/nfc/` unchanged.
-- [ ] Carry the manifest over: NFC permission, `uses-feature android.hardware.nfc required="true"`, NDEF and TAG intent filters.
-- [ ] Get tests running again.
-- [ ] Set up EAS (`eas.json`) with development, preview, and production profiles.
+- [x] Create the Expo app config (`app.config.ts`): name, package, `newArchEnabled`, `userInterfaceStyle`, NFC plugin.
+- [x] Move `App.tsx` and `src/` over. Keep `src/nfc/` unchanged.
+- [x] Carry the manifest over: NFC permission, `uses-feature android.hardware.nfc required="true"`, NDEF and TAG intent filters.
+- [x] Get tests running again.
+- [x] Set up EAS (`eas.json`) with development, preview, and production profiles.
 - **Verify:** a dev build on the phone reads and writes a tag the same as today. All 35 tests pass.
 
 ## Phase 1: Design system (2 hours)
@@ -123,3 +123,4 @@ Build one at a time, with tests for each, and commit each one on its own.
 | Date | What changed |
 | --- | --- |
 | 2026-10-22 | Plan written. Shikai tokens pulled. Stack and password decisions made. |
+| 2026-10-22 | Phase 0 code done: Expo SDK 57, RN 0.86.3, nfc-manager v4, Jest on jest-expo. Debug build compiles. Waiting on phone check. |

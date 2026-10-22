@@ -13,7 +13,7 @@
     "expo-dev-client": "~57.0.20",
     "react": "19.2.3",
     "react-native": "0.86.3",
-    "react-native-nfc-manager": "^3.17.5",
+    "react-native-nfc-manager": "^4.0.0",
     "react-native-safe-area-context": "~5.7.0"
   },
   "devDependencies": {

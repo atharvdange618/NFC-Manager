@@ -152,7 +152,7 @@ Unit tests mock the native module, so check these on real hardware:
 | `expo`                     | ~57.0.31 |
 | `react-native`             | 0.86.3   |
 | `react`                    | 19.2.3   |
-| `react-native-nfc-manager` | ^3.17.5  |
+| `react-native-nfc-manager` | ^4.0.0   |
 | `typescript`               | ~6.0.3   |
 | `jest`                     | ^29.6.3  |
 

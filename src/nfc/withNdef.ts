@@ -5,6 +5,6 @@ export async function withNdef(fn: () => Promise<void>) {
     await NfcManager.requestTechnology(NfcTech.Ndef);
     await fn();
   } finally {
-    NfcManager.cancelTechnologyRequest();
+    await NfcManager.cancelTechnologyRequest();
   }
 }
