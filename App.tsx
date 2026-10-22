@@ -64,7 +64,7 @@ const App = () => {
 
         <Card>
           <SectionHeader
-            title="📖 Read NFC Tag"
+            title="Read NFC Tag"
             description="Tap to scan and read data from an NFC tag"
           />
           {pending === 'read' ? (
@@ -76,7 +76,7 @@ const App = () => {
 
         <Card>
           <SectionHeader
-            title="✍️ Write NFC Tag"
+            title="Write NFC Tag"
             description="Write text, or a URL that opens without the app"
           />
           <RecordKindToggle value={writeKind} onChange={setWriteKind} />
