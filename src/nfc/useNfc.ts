@@ -83,7 +83,7 @@ export function useNfc() {
             : `Raw payload: ${decodeRecord(rec)}`;
         }
         setMessage({ kind: 'success', text: `Tag read: ${parsed}` });
-      }, 'Approach tag to read');
+      });
     } catch (ex: unknown) {
       setMessage(failureMessage('Read', ex));
     } finally {
@@ -91,7 +91,7 @@ export function useNfc() {
     }
   }, [nfcSupported, nfcEnabled, pending]);
 
-  // On Android this rejects the pending request with UserCancel, which
+  // This rejects the pending request with UserCancel, which
   // the read or write catch turns into a "cancelled" message.
   const cancelScan = useCallback(() => {
     NfcManager.cancelTechnologyRequest();
@@ -132,7 +132,7 @@ export function useNfc() {
           const bytes = Ndef.encodeMessage([record]);
           await NfcManager.ndefHandler.writeNdefMessage(bytes);
           setMessage({ kind: 'success', text: `Wrote: "${value}"` });
-        }, 'Approach tag to write');
+        });
       } catch (ex: unknown) {
         setMessage(failureMessage('Write', ex));
       } finally {

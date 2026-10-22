@@ -122,7 +122,7 @@ npx jest src/nfc/__tests__/ndef.test.ts   # run one file
 
 What the suites cover:
 
-- **`ndef.test.ts`**: record type detection on both platforms, and text and URI decoding.
+- **`ndef.test.ts`**: record type detection for byte-array and string types, and text and URI decoding.
 - **`useNfc.test.tsx`**: startup checks, reads, writes in both modes, URL validation, cancelling reads and writes, and the one-operation-at-a-time rule.
 
 Before committing, run lint, the type check, and the tests:

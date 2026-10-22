@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -68,8 +67,7 @@ const App = () => {
             title="📖 Read NFC Tag"
             description="Tap to scan and read data from an NFC tag"
           />
-          {/* iOS shows its own scan sheet with a cancel button */}
-          {pending === 'read' && Platform.OS === 'android' ? (
+          {pending === 'read' ? (
             <PrimaryButton label="Cancel" onPress={cancelScan} />
           ) : (
             <PrimaryButton label="Start Reading" onPress={readNfc} />
@@ -107,7 +105,7 @@ const App = () => {
             autoCorrect={!isUrl}
             keyboardType={isUrl ? 'url' : 'default'}
           />
-          {pending === 'write' && Platform.OS === 'android' ? (
+          {pending === 'write' ? (
             <PrimaryButton label="Cancel" onPress={cancelScan} />
           ) : (
             <PrimaryButton

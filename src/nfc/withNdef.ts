@@ -1,11 +1,8 @@
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 
-export async function withNdef(
-  fn: () => Promise<void>,
-  alertMessage = 'Hold your device near an NFC tag',
-) {
+export async function withNdef(fn: () => Promise<void>) {
   try {
-    await NfcManager.requestTechnology(NfcTech.Ndef, { alertMessage });
+    await NfcManager.requestTechnology(NfcTech.Ndef);
     await fn();
   } finally {
     NfcManager.cancelTechnologyRequest();

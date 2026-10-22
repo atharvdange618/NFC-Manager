@@ -1,7 +1,7 @@
 import { Ndef, NdefRecord } from 'react-native-nfc-manager';
 
-// Android returns the record type as bytes ([0x54]), iOS and our own
-// encoder can return it as a string ('T').
+// Android returns the record type as bytes ([0x54]); the library's own
+// encoder returns it as a string ('T').
 export function recordTypeName(record: NdefRecord): string {
   return typeof record.type === 'string'
     ? record.type
