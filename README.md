@@ -1,317 +1,177 @@
-# 📱 NFC Manager
+# NFC Manager
 
 <div align="center">
-  <img src="https://img.shields.io/badge/React%20Native-0.80+-blue?style=for-the-badge&logo=react" alt="React Native"/>
-  <img src="https://img.shields.io/badge/TypeScript-5.0+-blue?style=for-the-badge&logo=typescript" alt="TypeScript"/>
-  <img src="https://img.shields.io/badge/NFC-Ready-green?style=for-the-badge" alt="NFC Ready"/>
+  <img src="https://img.shields.io/badge/React%20Native-0.80-blue?style=for-the-badge&logo=react" alt="React Native"/>
+  <img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript" alt="TypeScript"/>
   <img src="https://img.shields.io/badge/Platform-Android-lightgrey?style=for-the-badge" alt="Platform"/>
 </div>
 
 <p align="center">
-  <strong>A beautiful, modern NFC tag reader and writer app built with React Native</strong>
-</p>
-
-<p align="center">
-  Seamlessly read from and write to NFC tags with an intuitive, aesthetically pleasing interface that supports both light and dark modes.
+  An Android app for reading and writing NDEF data on NFC tags, built with React Native and TypeScript.
 </p>
 
 ---
 
-## ✨ Features
+## Features
 
-### 🎯 Core Functionality
+- **Read tags.** Scan a tag and see its ID, supported technologies, and decoded NDEF records. Text and URI records are decoded; other record types show their raw payload.
+- **Write text or URLs.** Pick a mode with the Text/URL toggle, then write to the tag.
+- **Cancel a pending scan.** A Cancel button stops a read or write that is waiting for a tag.
+- **NFC status.** The app checks whether the device supports NFC and whether it is turned on.
+- **Light and dark themes** that follow the system setting.
 
-- **📖 NFC Tag Reading** - Scan and decode NDEF data from NFC tags
-- **✍️ NFC Tag Writing** - Write custom text messages to NFC tags
-- **🔍 Tag Information** - View detailed tag metadata including ID, technologies, and NDEF records
-- **⚡ Real-time Status** - Live NFC support and enablement detection
+## Write Modes
 
-### 🎨 Beautiful UI/UX
+The toggle above the input field picks the type of NDEF record the app writes.
 
-- **🌓 Dark/Light Mode** - Automatic theme switching based on system preferences
-- **📱 Modern Design** - Clean, card-based layout with smooth animations
-- **🎯 Accessibility** - High contrast colors and readable typography
-- **📊 Status Indicators** - Visual feedback with color-coded status dots
-- **💫 Smooth Interactions** - Responsive touch feedback and transitions
+| Mode | Record             | What a phone does when it taps the tag                          |
+| ---- | ------------------ | --------------------------------------------------------------- |
+| Text | NDEF Text (`T`)    | Shows the text in an NFC reader app, such as this one.          |
+| URL  | NDEF URI (`U`)     | Opens the link in the browser. No app needs to be installed.    |
 
-### 🛠️ Technical Features
+Each mode keeps its own input, so switching modes does not clear what you typed.
 
-- **TypeScript** - Full type safety and better developer experience
-- **Error Handling** - Comprehensive error handling and user feedback
-- **Performance** - Optimized for smooth performance and battery efficiency
+URL mode accepts only links that start with `http://` or `https://` and contain no spaces. The app trims leading and trailing whitespace before checking. Text mode writes the input exactly as typed, but rejects empty or whitespace-only input.
 
----
+Only one read or write can run at a time. Starting a second one while the first waits for a tag does nothing.
 
-## 📱 Screenshots
+## Screenshots
 
 <div align="center">
-  <img src="./assets/Screenshot_1752600051.png" alt="Light Mode" width="250"/>
-  <img src="./assets/Screenshot_1752600082.png" alt="Dark Mode" width="250"/>
+  <img src="./assets/Screenshot_1752600051.png" alt="Light mode" width="250"/>
+  <img src="./assets/Screenshot_1752600082.png" alt="Dark mode" width="250"/>
 </div>
 
----
-
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- React Native CLI
-- Android Studio
-- Physical device with NFC capability (NFC doesn't work on simulators)
+- Node.js 18 or later
+- Android Studio with an Android SDK set up for React Native ([environment setup guide](https://reactnative.dev/docs/set-up-your-environment))
+- A physical Android device with NFC. Emulators do not support NFC.
+- NFC tags for testing. NTAG213, NTAG215, and NTAG216 all work.
 
-### Installation
+### Install and Run
 
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/atharvdange618/nfc-manager-app.git
-   cd nfc-manager-app
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
-
-3. **Run the app**
-
-   ```bash
-   npx react-native run-android
-   ```
-
----
-
-## 📦 Dependencies
-
-### Core Dependencies
-
-- `react-native` - The React Native framework
-- `react-native-nfc-manager` - NFC functionality for React Native
-- `@types/react` - TypeScript definitions for React
-- `@types/react-native` - TypeScript definitions for React Native
-
-### Key Libraries
-
-```json
-{
-  "react": "19.1.0",
-  "react-native": "0.80.0",
-  "react-native-nfc-manager": "^3.16.1"
-}
+```bash
+git clone https://github.com/atharvdange618/NFC-Manager.git
+cd NFC-Manager
+npm install
+npm start          # Metro bundler, in one terminal
+npm run android    # build and install, in another
 ```
 
----
+The repository tracks the debug keystore, so a fresh clone builds without extra signing setup.
 
-## 🏗️ Project Structure
+### Permissions
 
-```merlin
-nfc-manager-app/
-├── 📁 src/
-│   ├── 📁 components/
-│   │   └── App.tsx                 # Main app component
-│   ├── 📁 utils/
-│       └── withNdef.ts            # NFC utility functions
-├── 📁 android/                    # Android-specific files
-├── 📁 ios/                       # iOS-specific files
-├── 📄 package.json
-├── 📄 tsconfig.json
-└── 📄 README.md
-```
-
----
-
-## 🎯 Usage
-
-### Reading NFC Tags
-
-1. **Ensure NFC is enabled** on your device
-2. **Tap "Start Reading"** button
-3. **Bring your device close** to an NFC tag
-4. **View the results** in the tag information section
-
-### Writing to NFC Tags
-
-1. **Enter your text** in the input field
-2. **Tap "Write to Tag"** button
-3. **Approach the NFC tag** with your device
-4. **Confirmation message** will appear when writing is complete
-
-### Tag Information
-
-The app displays comprehensive information about scanned tags:
-
-- **Tag ID** - Unique identifier
-- **Technologies** - Supported NFC technologies
-- **NDEF Records** - Structured data content
-- **Raw Payload** - Hex representation of data
-
----
-
-## 🔧 Configuration
-
-Add these permissions to your `android/app/src/main/AndroidManifest.xml`:
+`android/app/src/main/AndroidManifest.xml` already declares what the app needs:
 
 ```xml
 <uses-permission android:name="android.permission.NFC" />
-<uses-feature
-    android:name="android.hardware.nfc"
-    android:required="true" />
+<uses-feature android:name="android.hardware.nfc" android:required="true" />
 ```
 
----
+## Project Structure
 
-## 🎨 Customization
-
-### Theme Configuration
-
-The app uses a comprehensive theme system that automatically adapts to system preferences:
-
-```typescript
-const theme = {
-  background: isDarkMode ? "#0F0F0F" : "#FFFFFF",
-  surface: isDarkMode ? "#1C1C1E" : "#F8F9FA",
-  primary: "#007AFF",
-  success: "#34C759",
-  // ... more theme properties
-};
+```text
+NFC-Manager/
+├── App.tsx                     # Screen layout; wires the hook to the components
+├── src/
+│   ├── nfc/
+│   │   ├── useNfc.ts           # NFC state, read, write, cancel, and input checks
+│   │   ├── withNdef.ts         # Requests the NDEF technology and always releases it
+│   │   ├── ndef.ts             # Record type detection and payload decoding
+│   │   └── __tests__/
+│   │       ├── ndef.test.ts
+│   │       └── useNfc.test.tsx
+│   ├── components/
+│   │   ├── Card.tsx
+│   │   ├── MessageBanner.tsx   # Info, success, and error messages
+│   │   ├── PrimaryButton.tsx
+│   │   ├── RecordKindToggle.tsx  # Text/URL mode switch
+│   │   ├── SectionHeader.tsx
+│   │   ├── StatusCard.tsx      # NFC supported and enabled indicators
+│   │   └── TagInfoCard.tsx     # Details of the last scanned tag
+│   └── theme/
+│       └── useTheme.ts         # Light and dark color tokens
+├── android/
+├── jest.config.js
+└── package.json
 ```
 
-### Styling
+### How the pieces fit
 
-All styles are defined using `StyleSheet.create()` with responsive design principles:
+`useNfc` owns all NFC logic and exposes `readNfc`, `writeNfc(input, kind)`, and `cancelScan`, along with status flags, the last scanned tag, a `pending` value (`'read'`, `'write'`, or `null`), and a typed `message`. Components only render what the hook returns.
 
-```typescript
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  // ... more styles
-});
+`withNdef` wraps every tag operation. It requests the NDEF technology, runs the operation, and cancels the request in a `finally` block so the NFC session never stays open after an error.
+
+`ndef.ts` handles a platform difference: Android reports record types as byte arrays (`[0x54]`), while the library's own encoder uses strings (`'T'`). `recordTypeName` turns both into the same string before the app checks the type.
+
+When the user cancels, the library throws `NfcError.UserCancel`. The hook shows a "cancelled" info message for it and logs nothing, since a cancel is not an error.
+
+## Testing
+
+The tests use Jest with the `react-native` preset and the mock that ships with `react-native-nfc-manager`, so they run without a device.
+
+```bash
+npm test                          # run all tests
+npx jest --watch                  # rerun on file changes
+npx jest src/nfc/__tests__/ndef.test.ts   # run one file
 ```
 
----
+What the suites cover:
 
-## 🧪 Testing
+- **`ndef.test.ts`**: record type detection on both platforms, and text and URI decoding.
+- **`useNfc.test.tsx`**: startup checks, reads, writes in both modes, URL validation, cancelling reads and writes, and the one-operation-at-a-time rule.
 
-### Device Requirements
+Before committing, run lint, the type check, and the tests:
 
-- **Physical device** with NFC capability
-- **NFC tags** for testing (NTAG213, NTAG215, or NTAG216 recommended)
-- **NFC enabled** in device settings
+```bash
+npm run lint
+npx tsc --noEmit
+npm test
+```
 
-### Testing Checklist
+### Manual testing on a device
 
-- [ ] NFC detection works correctly
-- [ ] Reading various tag types
-- [ ] Writing text to tags
-- [ ] Error handling for disabled NFC
-- [ ] Dark/light mode switching
-- [ ] UI responsiveness on different screen sizes
+Unit tests mock the native module, so check these on real hardware:
 
----
+1. Read a blank tag, a text tag, and a URL tag.
+2. Write text, then read it back.
+3. Write a URL, close the app, and tap the tag. The browser should open the link.
+4. Start a read or write, then press Cancel.
+5. Turn NFC off in system settings and confirm the app reports it.
 
-## 📈 Performance
+## Tech Stack
 
-### Optimization Features
+| Package                    | Version  |
+| -------------------------- | -------- |
+| `react-native`             | 0.80.0   |
+| `react`                    | 19.1.0   |
+| `react-native-nfc-manager` | ^3.16.1  |
+| `typescript`               | 5.0.4    |
+| `jest`                     | ^29.6.3  |
 
-- **Lazy loading** of NFC operations
-- **Efficient re-renders** with React hooks
-- **Memory management** for tag data
-- **Battery optimization** with proper NFC session management
+## Troubleshooting
 
-### Best Practices
+- **"NFC not supported"**: the device has no NFC hardware, or you are on an emulator.
+- **"NFC disabled"**: turn on NFC in system settings, then restart the app.
+- **A URL tag opens this app instead of the browser**: Android may route the tag to the app in the foreground. Close the app and tap again.
+- **A write fails**: the tag may be locked, too small for the data, or moved away too early. Hold it still until the success message appears.
 
-- Always call `NfcManager.start()` on app initialization
-- Properly handle NFC session cleanup
-- Use `useCallback` for event handlers
-- Implement proper error boundaries
+## Privacy
 
----
+The app makes no network requests and stores nothing. Tag data lives in memory only for the current session.
 
-## 🔒 Security
+## Contributing
 
-### Data Protection
+Issues and pull requests are welcome. Please run lint, the type check, and the tests before you open a pull request, and use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 
-- **No sensitive data storage** - All operations are session-based
-- **Secure NFC operations** - Using official react-native-nfc-manager
-- **Input validation** - Proper validation of user input before writing
-- **Error handling** - Comprehensive error handling prevents crashes
+## License
 
-### Privacy
+MIT
 
-- **No data collection** - The app doesn't collect or transmit user data
-- **Local operations only** - All NFC operations happen locally on device
-- **No network requests** - Fully offline functionality
+## Author
 
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit your changes**: `git commit -m 'Add amazing feature'`
-4. **Push to the branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
-
-### Development Guidelines
-
-- Follow TypeScript best practices
-- Maintain consistent code formatting
-- Write meaningful commit messages
-- Test on Android
-- Update documentation as needed
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
----
-
-## 🙏 Acknowledgments
-
-- **react-native-nfc-manager** - For providing excellent NFC functionality
-- **React Native Community** - For the amazing framework and ecosystem
-- **NFC Forum** - For NFC standards and specifications
-
----
-
-## 📞 Support
-
-### Getting Help
-
-- **📚 Documentation** - Check this README and code comments
-- **🐛 Issues** - Report bugs via GitHub Issues
-- **📧 Email** - Contact us at atharvdange.dev@gmail.com
-
-### Common Issues
-
-- **NFC not working on simulator** - Use a physical device
-- **Permission denied** - Check NFC permissions in device settings
-- **App crashes on tag read** - Ensure NFC is enabled and try again
-
----
-
-<div align="center">
-  <p>
-    <strong>Made with ❤️ by a developer who loves NFC technology</strong>
-  </p>
-  <p>
-    <a href="https://github.com/atharvdange618/nfc-manager-app">⭐ Star this project</a> •
-    <a href="https://github.com/atharvdange618/nfc-manager-app/issues">🐛 Report Bug</a> •
-    <a href="https://github.com/atharvdange618/nfc-manager-app/issues">💡 Request Feature</a>
-  </p>
-</div>
+Built by Atharv Dange. Find me on X at [@atharvdangedev](https://x.com/atharvdangedev).
