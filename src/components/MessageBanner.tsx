@@ -1,19 +1,16 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../theme/useTheme';
+import { NfcMessage } from '../nfc/useNfc';
 
-export function MessageBanner({ message }: { message: string }) {
+export function MessageBanner({ message }: { message: NfcMessage }) {
   const { theme } = useTheme();
 
-  const getMessageColor = () => {
-    if (message.includes('error') || message.includes('not supported')) {
-      return theme.error;
-    }
-    if (message.includes('Ready') || message.includes('Wrote')) {
-      return theme.success;
-    }
-    return theme.primary;
-  };
+  const color = {
+    error: theme.error,
+    success: theme.success,
+    info: theme.primary,
+  }[message.kind];
 
   return (
     <View
@@ -22,7 +19,7 @@ export function MessageBanner({ message }: { message: string }) {
         { backgroundColor: theme.cardBackground, borderColor: theme.border },
       ]}
     >
-      <Text style={[styles.text, { color: getMessageColor() }]}>{message}</Text>
+      <Text style={[styles.text, { color }]}>{message.text}</Text>
     </View>
   );
 }

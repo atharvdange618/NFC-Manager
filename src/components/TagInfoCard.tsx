@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { TagEvent } from 'react-native-nfc-manager';
 import { useTheme } from '../theme/useTheme';
-import { decodeRecord } from '../nfc/ndef';
+import { decodeRecord, recordTypeName } from '../nfc/ndef';
 import { Card } from './Card';
 import { SectionHeader } from './SectionHeader';
 
@@ -39,9 +39,7 @@ export function TagInfoCard({ tag }: { tag: TagEvent }) {
               <View key={index} style={styles.ndefRecord}>
                 <Text style={[styles.ndefRecordText, { color: theme.text }]}>
                   <Text style={styles.bold}>Type:</Text>{' '}
-                  {record.type
-                    ? String.fromCharCode(...(record.type as number[]))
-                    : 'Unknown'}
+                  {record.type ? recordTypeName(record) : 'Unknown'}
                 </Text>
                 <Text style={[styles.ndefRecordText, { color: theme.text }]}>
                   <Text style={styles.bold}>Payload:</Text>{' '}
