@@ -3,8 +3,10 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Octicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { PrimaryButton } from '../src/components/PrimaryButton';
+import { RecordCard } from '../src/components/RecordCard';
 import { TagInfoCard } from '../src/components/TagInfoCard';
 import { useNfcContext } from '../src/nfc/NfcContext';
+import { parseRecord } from '../src/nfc/records';
 import { useTheme } from '../src/theme/ThemeContext';
 import { IconSize, Layout, Spacing, TextStyles } from '../src/theme/tokens';
 
@@ -43,7 +45,12 @@ export default function ResultSheet() {
       </View>
 
       {ok && action === 'read' && scannedTag ? (
-        <TagInfoCard tag={scannedTag} />
+        <>
+          {scannedTag.ndefMessage?.map((record, index) => (
+            <RecordCard key={index} record={parseRecord(record)} />
+          ))}
+          <TagInfoCard tag={scannedTag} />
+        </>
       ) : null}
 
       <View style={styles.footer}>
