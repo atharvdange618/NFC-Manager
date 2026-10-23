@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import NfcManager, { Ndef, NfcError, TagEvent } from 'react-native-nfc-manager';
 import { withNdef } from './withNdef';
+import { addScan } from '../history';
 import {
   describeRecord,
   parseRecord,
@@ -92,6 +93,7 @@ export function useNfc() {
       result = await withNdef(async (): Promise<NfcMessage> => {
         const tag = await NfcManager.getTag();
         setScannedTag(tag);
+        if (tag) addScan(tag);
 
         let parsed = 'No NDEF data.';
         if (tag?.ndefMessage?.length) {

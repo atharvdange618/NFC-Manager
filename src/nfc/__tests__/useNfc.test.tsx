@@ -3,6 +3,8 @@ import ReactTestRenderer from 'react-test-renderer';
 import NfcManager, { Ndef, NfcError } from 'react-native-nfc-manager';
 import { NfcOutcome, useNfc } from '../useNfc';
 import { toRecord, WritePayload } from '../records';
+import { loadHistory } from '../../history';
+import { storage } from '../../storage';
 
 // v4 loads the compiled dist/ module, but ships its mock next to src/.
 jest.mock('react-native-nfc-manager/dist/src/NativeNfcManager', () =>
@@ -48,6 +50,7 @@ async function renderUseNfc() {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  storage.clearAll();
   jest.spyOn(console, 'warn').mockImplementation(() => {});
   nfc.isSupported.mockResolvedValue(true);
   nfc.start.mockResolvedValue();
@@ -88,6 +91,10 @@ describe('readNfc', () => {
 
     expect(hook().message).toEqual({ kind: 'success', text: 'Tag read: hi' });
     expect(hook().scannedTag?.id).toBe('01');
+    expect(loadHistory()[0]).toMatchObject({
+      tagId: '01',
+      records: [{ kind: 'text', text: 'hi' }],
+    });
   });
 
   it('shows an error when the read fails', async () => {
@@ -97,6 +104,8 @@ describe('readNfc', () => {
     await ReactTestRenderer.act(async () => {
       await hook().readNfc();
     });
+
+    expect(loadHistory()).toEqual([]);
 
     expect(hook().message).toEqual({
       kind: 'error',
