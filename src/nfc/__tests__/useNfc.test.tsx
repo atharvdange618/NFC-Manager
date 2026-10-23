@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import NfcManager, { Ndef, NfcError } from 'react-native-nfc-manager';
-import { useNfc } from '../useNfc';
+import { NfcOutcome, useNfc } from '../useNfc';
 
 // v4 loads the compiled dist/ module, but ships its mock next to src/.
 jest.mock('react-native-nfc-manager/dist/src/NativeNfcManager', () =>
@@ -81,7 +81,9 @@ describe('readNfc', () => {
     nfc.getTag.mockResolvedValue({ id: '01', ndefMessage: [record] });
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().readNfc());
+    await ReactTestRenderer.act(async () => {
+      await hook().readNfc();
+    });
 
     expect(hook().message).toEqual({ kind: 'success', text: 'Tag read: hi' });
     expect(hook().scannedTag?.id).toBe('01');
@@ -91,7 +93,9 @@ describe('readNfc', () => {
     nfc.getTag.mockRejectedValue(new Error('tag lost'));
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().readNfc());
+    await ReactTestRenderer.act(async () => {
+      await hook().readNfc();
+    });
 
     expect(hook().message).toEqual({
       kind: 'error',
@@ -104,7 +108,9 @@ describe('readNfc', () => {
     nfc.requestTechnology.mockRejectedValue(new NfcError.UserCancel());
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().readNfc());
+    await ReactTestRenderer.act(async () => {
+      await hook().readNfc();
+    });
 
     expect(hook().message).toEqual({ kind: 'info', text: 'Read cancelled' });
   });
@@ -113,7 +119,9 @@ describe('readNfc', () => {
     nfc.isEnabled.mockResolvedValue(false);
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().readNfc());
+    await ReactTestRenderer.act(async () => {
+      await hook().readNfc();
+    });
 
     expect(hook().message).toEqual({
       kind: 'error',
@@ -141,15 +149,15 @@ describe('cancelScan', () => {
   async function startPending(
     hook: () => ReturnType<typeof useNfc>,
     action: 'read' | 'write',
-  ): Promise<{ done: Promise<void> }> {
-    let done: Promise<void> = Promise.resolve();
+  ): Promise<{ done: Promise<unknown> }> {
+    let done: Promise<unknown> = Promise.resolve();
     await ReactTestRenderer.act(async () => {
       done = action === 'read' ? hook().readNfc() : hook().writeNfc('hi', 'text');
     });
     return { done };
   }
 
-  async function cancel(hook: () => ReturnType<typeof useNfc>, done: Promise<void>) {
+  async function cancel(hook: () => ReturnType<typeof useNfc>, done: Promise<unknown>) {
     await ReactTestRenderer.act(async () => {
       hook().cancelScan();
       await done;
@@ -204,7 +212,9 @@ describe('cancelScan', () => {
     const hook = await renderUseNfc();
 
     const { done } = await startPending(hook, 'read');
-    await ReactTestRenderer.act(() => hook().writeNfc('hi', 'text'));
+    await ReactTestRenderer.act(async () => {
+      await hook().writeNfc('hi', 'text');
+    });
 
     expect(nfc.requestTechnology).toHaveBeenCalledTimes(1);
     expect(hook().pending).toBe('read');
@@ -215,7 +225,9 @@ describe('cancelScan', () => {
     nfc.getTag.mockResolvedValue({ id: '01', ndefMessage: [] });
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().readNfc());
+    await ReactTestRenderer.act(async () => {
+      await hook().readNfc();
+    });
 
     expect(hook().pending).toBeNull();
   });
@@ -226,7 +238,9 @@ describe('writeNfc', () => {
     nfc.ndefHandler.writeNdefMessage.mockResolvedValue();
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().writeNfc('hello', 'text'));
+    await ReactTestRenderer.act(async () => {
+      await hook().writeNfc('hello', 'text');
+    });
 
     expect(hook().message).toEqual({ kind: 'success', text: 'Wrote: "hello"' });
   });
@@ -237,7 +251,9 @@ describe('writeNfc', () => {
     );
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().writeNfc('hello', 'text'));
+    await ReactTestRenderer.act(async () => {
+      await hook().writeNfc('hello', 'text');
+    });
 
     expect(hook().message).toEqual({
       kind: 'error',
@@ -248,7 +264,9 @@ describe('writeNfc', () => {
   it('rejects empty text', async () => {
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().writeNfc('   ', 'text'));
+    await ReactTestRenderer.act(async () => {
+      await hook().writeNfc('   ', 'text');
+    });
 
     expect(hook().message).toEqual({
       kind: 'error',
@@ -264,7 +282,9 @@ describe('writeNfc record kinds', () => {
     nfc.ndefHandler.writeNdefMessage.mockResolvedValue();
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().writeNfc('hello', 'text'));
+    await ReactTestRenderer.act(async () => {
+      await hook().writeNfc('hello', 'text');
+    });
 
     expect(nfc.ndefHandler.writeNdefMessage).toHaveBeenCalledWith(
       Ndef.encodeMessage([Ndef.textRecord('hello')]),
@@ -275,7 +295,9 @@ describe('writeNfc record kinds', () => {
     nfc.ndefHandler.writeNdefMessage.mockResolvedValue();
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().writeNfc(url, 'url'));
+    await ReactTestRenderer.act(async () => {
+      await hook().writeNfc(url, 'url');
+    });
 
     expect(nfc.ndefHandler.writeNdefMessage).toHaveBeenCalledWith(
       Ndef.encodeMessage([Ndef.uriRecord(url)]),
@@ -287,7 +309,9 @@ describe('writeNfc record kinds', () => {
     nfc.ndefHandler.writeNdefMessage.mockResolvedValue();
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().writeNfc(`  ${url}\n`, 'url'));
+    await ReactTestRenderer.act(async () => {
+      await hook().writeNfc(`  ${url}\n`, 'url');
+    });
 
     expect(nfc.ndefHandler.writeNdefMessage).toHaveBeenCalledWith(
       Ndef.encodeMessage([Ndef.uriRecord(url)]),
@@ -299,7 +323,9 @@ describe('writeNfc record kinds', () => {
     async input => {
       const hook = await renderUseNfc();
 
-      await ReactTestRenderer.act(() => hook().writeNfc(input, 'url'));
+      await ReactTestRenderer.act(async () => {
+      await hook().writeNfc(input, 'url');
+    });
 
       expect(hook().message).toEqual({
         kind: 'error',
@@ -316,8 +342,41 @@ describe('writeNfc record kinds', () => {
     nfc.getTag.mockResolvedValue({ id: '01', ndefMessage: [record] });
     const hook = await renderUseNfc();
 
-    await ReactTestRenderer.act(() => hook().readNfc());
+    await ReactTestRenderer.act(async () => {
+      await hook().readNfc();
+    });
 
     expect(hook().message).toEqual({ kind: 'success', text: `Tag read: ${url}` });
+  });
+});
+
+describe('action outcomes', () => {
+  it('marks a finished read as attempted', async () => {
+    nfc.getTag.mockResolvedValue({ id: '01' });
+    const hook = await renderUseNfc();
+
+    let outcome: NfcOutcome | null = null;
+    await ReactTestRenderer.act(async () => {
+      outcome = await hook().readNfc();
+    });
+
+    expect(outcome).toEqual({
+      message: { kind: 'success', text: 'Tag read: No NDEF data.' },
+      attempted: true,
+    });
+  });
+
+  it('marks a failed check as not attempted', async () => {
+    const hook = await renderUseNfc();
+
+    let outcome: NfcOutcome | null = null;
+    await ReactTestRenderer.act(async () => {
+      outcome = await hook().writeNfc('   ', 'text');
+    });
+
+    expect(outcome).toEqual({
+      message: { kind: 'error', text: 'Enter text to write' },
+      attempted: false,
+    });
   });
 });

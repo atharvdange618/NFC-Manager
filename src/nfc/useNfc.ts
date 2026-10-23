@@ -13,6 +13,12 @@ export interface NfcMessage {
   text: string;
 }
 
+// `attempted` is false when a check stopped the action before a tag request.
+export interface NfcOutcome {
+  message: NfcMessage;
+  attempted: boolean;
+}
+
 function errorText(ex: unknown): string {
   return ex instanceof Error ? ex.message : String(ex);
 }
@@ -52,26 +58,37 @@ export function useNfc() {
     initNfc();
   }, []);
 
-  const readNfc = useCallback(async () => {
+  const finish = useCallback(
+    (next: NfcMessage, attempted: boolean): NfcOutcome => {
+      setMessage(next);
+      return { message: next, attempted };
+    },
+    [],
+  );
+
+  const readNfc = useCallback(async (): Promise<NfcOutcome | null> => {
     if (pending) {
-      return;
+      return null;
     }
     if (!nfcSupported || !nfcEnabled) {
-      setMessage({
-        kind: 'error',
-        text: !nfcSupported
-          ? 'NFC not supported'
-          : 'NFC disabled; enable in settings',
-      });
-      return;
+      return finish(
+        {
+          kind: 'error',
+          text: !nfcSupported
+            ? 'NFC not supported'
+            : 'NFC disabled; enable in settings',
+        },
+        false,
+      );
     }
 
     setMessage({ kind: 'info', text: 'Ready to scan...' });
     setScannedTag(null);
     setPending('read');
 
+    let result: NfcMessage;
     try {
-      await withNdef(async () => {
+      result = await withNdef(async (): Promise<NfcMessage> => {
         const tag = await NfcManager.getTag();
         setScannedTag(tag);
 
@@ -82,14 +99,15 @@ export function useNfc() {
             ? decodeRecord(rec)
             : `Raw payload: ${decodeRecord(rec)}`;
         }
-        setMessage({ kind: 'success', text: `Tag read: ${parsed}` });
+        return { kind: 'success', text: `Tag read: ${parsed}` };
       });
     } catch (ex: unknown) {
-      setMessage(failureMessage('Read', ex));
+      result = failureMessage('Read', ex);
     } finally {
       setPending(null);
     }
-  }, [nfcSupported, nfcEnabled, pending]);
+    return finish(result, true);
+  }, [nfcSupported, nfcEnabled, pending, finish]);
 
   // This rejects the pending request with UserCancel, which
   // the read or write catch turns into a "cancelled" message.
@@ -98,48 +116,53 @@ export function useNfc() {
   }, []);
 
   const writeNfc = useCallback(
-    async (input: string, kind: RecordKind) => {
+    async (input: string, kind: RecordKind): Promise<NfcOutcome | null> => {
       if (pending) {
-        return;
+        return null;
       }
       if (!nfcSupported || !nfcEnabled) {
-        setMessage({
-          kind: 'error',
-          text: !nfcSupported ? 'NFC not supported' : 'Enable NFC first',
-        });
-        return;
+        return finish(
+          {
+            kind: 'error',
+            text: !nfcSupported ? 'NFC not supported' : 'Enable NFC first',
+          },
+          false,
+        );
       }
       // Text is written as typed; a URL is trimmed so stray spaces don't break it.
       const value = kind === 'url' ? input.trim() : input;
       if (kind === 'url' && !URL_PATTERN.test(value)) {
-        setMessage({
-          kind: 'error',
-          text: 'Enter a URL starting with http:// or https://',
-        });
-        return;
+        return finish(
+          {
+            kind: 'error',
+            text: 'Enter a URL starting with http:// or https://',
+          },
+          false,
+        );
       }
       if (!value.trim()) {
-        setMessage({ kind: 'error', text: 'Enter text to write' });
-        return;
+        return finish({ kind: 'error', text: 'Enter text to write' }, false);
       }
 
       setMessage({ kind: 'info', text: 'Ready to write...' });
       setPending('write');
+      let result: NfcMessage;
       try {
-        await withNdef(async () => {
+        result = await withNdef(async (): Promise<NfcMessage> => {
           const record =
             kind === 'url' ? Ndef.uriRecord(value) : Ndef.textRecord(value);
           const bytes = Ndef.encodeMessage([record]);
           await NfcManager.ndefHandler.writeNdefMessage(bytes);
-          setMessage({ kind: 'success', text: `Wrote: "${value}"` });
+          return { kind: 'success', text: `Wrote: "${value}"` };
         });
       } catch (ex: unknown) {
-        setMessage(failureMessage('Write', ex));
+        result = failureMessage('Write', ex);
       } finally {
         setPending(null);
       }
+      return finish(result, true);
     },
-    [nfcSupported, nfcEnabled, pending],
+    [nfcSupported, nfcEnabled, pending, finish],
   );
 
   return {
