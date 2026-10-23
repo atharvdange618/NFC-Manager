@@ -38,11 +38,11 @@ This file tracks the work from the current single-screen app to a v1 we can publ
 
 Source: `Shikai/constants/theme.ts`, `constants/themes.ts`, `contexts/ThemeContext.tsx`.
 
-- [ ] `src/theme/tokens.ts`: `FontFamily`, `FontSize`, `LineHeight`, `TextStyles`, `Spacing`, `Radius`, `BorderWidth`, `IconSize`, `Layout`.
-- [ ] `src/theme/themes.ts`: `ColorTokens` without the GitHub-only keys (badges, contribution graph, `merged`, `star`). Light and Dark palettes.
-- [ ] `ThemeProvider` with MMKV storage, dark by default.
-- [ ] Load Inter and JetBrains Mono with `expo-font`. Use mono for tag IDs and raw bytes.
-- [ ] Restyle the components in `src/components/` with the tokens. Replace `src/theme/useTheme.ts`.
+- [x] `src/theme/tokens.ts`: `FontFamily`, `FontSize`, `LineHeight`, `TextStyles`, `Spacing`, `Radius`, `BorderWidth`, `IconSize`, `Layout`.
+- [x] `src/theme/themes.ts`: `ColorTokens` without the GitHub-only keys (badges, contribution graph, `merged`, `star`). Light and Dark palettes.
+- [x] `ThemeProvider` with MMKV storage, dark by default.
+- [x] Load Inter and JetBrains Mono with `expo-font`. Use mono for tag IDs and raw bytes.
+- [x] Restyle the components in `src/components/` with the tokens. Replace `src/theme/useTheme.ts`.
 - **Verify:** both themes look right on the phone. The theme survives an app restart.
 
 | Token | Values |
@@ -124,3 +124,4 @@ Build one at a time, with tests for each, and commit each one on its own.
 | --- | --- |
 | 2026-10-22 | Plan written. Shikai tokens pulled. Stack and password decisions made. |
 | 2026-10-22 | Phase 0 code done: Expo SDK 57, RN 0.86.3, nfc-manager v4, Jest on jest-expo. Debug build compiles. Waiting on phone check. |
+| 2026-10-23 | Phase 1 code done: tokens, Light and Dark themes, MMKV theme storage, Inter and JetBrains Mono. Temporary theme switch in the header until Settings exists. 38 tests pass. Verified on the phone: both themes look right and the choice survives a restart. |
