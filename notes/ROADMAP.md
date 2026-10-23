@@ -73,8 +73,8 @@ Build one at a time, with tests for each, and commit each one on its own.
 - [x] Replace `RecordKindToggle` with a type picker. It became `SegmentedControl`, which the Wi-Fi security choice reuses.
 
 ### 3.2 Scan history (2 to 3 hours)
-- [ ] Save every read to MMKV on the phone: time, tag ID, tech, records.
-- [ ] History tab: list, detail, copy, share, "write this again", delete, clear all.
+- [x] Save every read to MMKV on the phone: time, tag ID, tech, records. Records are stored decoded, so a scan can be written again without the tag bytes.
+- [x] History tab: list, detail, copy, share, "write this again", delete, clear all.
 
 ### 3.3 Tag info (2 hours)
 - [ ] Show chip type, tag ID, tech list, NDEF capacity used and total, writable, can be made read-only.
@@ -128,3 +128,4 @@ Build one at a time, with tests for each, and commit each one on its own.
 | 2026-10-23 | Phase 1 code done: tokens, Light and Dark themes, MMKV theme storage, Inter and JetBrains Mono. Temporary theme switch in the header until Settings exists. 38 tests pass. Verified on the phone: both themes look right and the choice survives a restart. |
 | 2026-10-23 | Phase 2 code done: expo-router tabs, NfcProvider shared across tabs, result sheet via `formSheet`, haptics, Settings with generated license list. SDK 57 pins for react-dom, worklets, reanimated and gesture-handler in `overrides` (expo-router pulls them in). Removed the banner accent stripe and the emoji heading; muted and inactive-tab grays now pass WCAG AA. 43 tests pass. Verified on the phone in both themes. |
 | 2026-10-23 | Phase 3.1 done: eight record types in `src/nfc/records.ts`, one payload union for write and read. Wi-Fi bytes written by hand because the library encodes open networks as `0x0000`, not `0x0001`. Added expo-clipboard, expo-intent-launcher and expo-location. 78 tests pass. Verified on the phone: a Wi-Fi tag joins the network and Add to contacts fills the form. |
+| 2026-10-23 | Phase 3.2 done: scan history in one MMKV key, read through `useMMKVString` so the list updates live. Detail screen at `app/scan/[id].tsx`; "write this again" fills the Write form through a route param. Debug builds get Settings > Add sample scans, since the test tags arrive October 29. 82 tests pass. Verified on the phone with the sample scans. |
