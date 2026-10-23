@@ -33,4 +33,12 @@ describe('ndefBytesUsed', () => {
       Ndef.encodeMessage([record]).length,
     );
   });
+
+  it('is null when the message cannot be re-encoded', () => {
+    const spy = jest.spyOn(Ndef, 'encodeMessage').mockImplementation(() => {
+      throw new Error('bad record');
+    });
+    expect(ndefBytesUsed({ ndefMessage: [Ndef.textRecord('hi')] })).toBeNull();
+    spy.mockRestore();
+  });
 });

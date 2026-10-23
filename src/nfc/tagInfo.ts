@@ -27,7 +27,13 @@ export async function readChip(): Promise<Chip | null> {
 }
 
 // ponytail: re-encodes the cached message, so it counts the NDEF message
-// bytes but not the TLV wrapper (2 to 4 bytes) around them.
-export function ndefBytesUsed(tag: TagEvent): number {
-  return tag.ndefMessage?.length ? Ndef.encodeMessage(tag.ndefMessage).length : 0;
+// bytes but not the TLV wrapper (2 to 4 bytes) around them. Null when a
+// malformed record can't be re-encoded.
+export function ndefBytesUsed(tag: TagEvent): number | null {
+  if (!tag.ndefMessage?.length) return 0;
+  try {
+    return Ndef.encodeMessage(tag.ndefMessage).length;
+  } catch {
+    return null;
+  }
 }

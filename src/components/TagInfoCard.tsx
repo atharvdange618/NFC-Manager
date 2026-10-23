@@ -14,13 +14,14 @@ function yesNo(value: boolean | null | undefined): string {
 
 export function TagInfoCard({ tag, chip }: { tag: TagEvent; chip: Chip | null }) {
   const { colors } = useTheme();
+  const used = ndefBytesUsed(tag);
   const rows: [string, string][] = [
     ['Chip', chip ?? tag.type ?? 'Unknown'],
     ['ID', tag.id || 'N/A'],
     ['Technologies', tag.techTypes?.join(', ') || 'N/A'],
     [
       'NDEF size',
-      tag.maxSize ? `${ndefBytesUsed(tag)} of ${tag.maxSize} bytes` : 'Not NDEF',
+      tag.maxSize ? `${used ?? 'Unknown'} of ${tag.maxSize} bytes` : 'Not NDEF',
     ],
     ['Writable', yesNo(tag.isWritable)],
     ['Can lock', yesNo(tag.canMakeReadOnly)],
