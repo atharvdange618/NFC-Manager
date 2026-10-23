@@ -1,6 +1,13 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../theme/useTheme';
+import { useTheme } from '../theme/ThemeContext';
+import {
+  BorderWidth,
+  FontFamily,
+  Radius,
+  Spacing,
+  TextStyles,
+} from '../theme/tokens';
 import { RecordKind } from '../nfc/useNfc';
 
 const OPTIONS: { kind: RecordKind; label: string }[] = [
@@ -14,13 +21,13 @@ interface RecordKindToggleProps {
 }
 
 export function RecordKindToggle({ value, onChange }: RecordKindToggleProps) {
-  const { theme } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <View
       style={[
         styles.container,
-        { backgroundColor: theme.surface, borderColor: theme.border },
+        { backgroundColor: colors.surfaceInset, borderColor: colors.border },
       ]}
     >
       {OPTIONS.map(option => {
@@ -30,7 +37,7 @@ export function RecordKindToggle({ value, onChange }: RecordKindToggleProps) {
             key={option.kind}
             style={[
               styles.segment,
-              selected && { backgroundColor: theme.primary },
+              selected && { backgroundColor: colors.accent },
             ]}
             onPress={() => onChange(option.kind)}
             accessibilityRole="button"
@@ -40,7 +47,9 @@ export function RecordKindToggle({ value, onChange }: RecordKindToggleProps) {
             <Text
               style={[
                 styles.label,
-                selected ? styles.selectedLabel : { color: theme.textSecondary },
+                {
+                  color: selected ? colors.textOnAccent : colors.textSecondary,
+                },
               ]}
             >
               {option.label}
@@ -55,22 +64,19 @@ export function RecordKindToggle({ value, onChange }: RecordKindToggleProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 4,
-    marginBottom: 12,
+    borderRadius: Radius.md,
+    borderWidth: BorderWidth.normal,
+    padding: Spacing.xs,
+    marginBottom: Spacing.md,
   },
   segment: {
     flex: 1,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.sm,
     alignItems: 'center',
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  selectedLabel: {
-    color: '#FFFFFF',
+    ...TextStyles.label,
+    fontFamily: FontFamily.semiBold,
   },
 });

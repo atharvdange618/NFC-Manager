@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useTheme } from '../theme/useTheme';
+import { useTheme } from '../theme/ThemeContext';
+import { Radius, Spacing, TextStyles } from '../theme/tokens';
 import { Card } from './Card';
 
 interface StatusCardProps {
@@ -9,12 +10,12 @@ interface StatusCardProps {
 }
 
 export function StatusCard({ nfcSupported, nfcEnabled }: StatusCardProps) {
-  const { theme } = useTheme();
+  const { colors } = useTheme();
 
   const getStatusColor = () => {
-    if (!nfcSupported) return theme.error;
-    if (!nfcEnabled) return theme.warning;
-    return theme.success;
+    if (!nfcSupported) return colors.danger;
+    if (!nfcEnabled) return colors.warning;
+    return colors.success;
   };
 
   return (
@@ -24,23 +25,27 @@ export function StatusCard({ nfcSupported, nfcEnabled }: StatusCardProps) {
           <View
             style={[
               styles.indicator,
-              { backgroundColor: nfcSupported ? theme.success : theme.error },
+              { backgroundColor: nfcSupported ? colors.success : colors.danger },
             ]}
           />
-          <Text style={[styles.label, { color: theme.text }]}>NFC Support</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>
+            NFC Support
+          </Text>
           <Text style={[styles.value, { color: getStatusColor() }]}>
             {nfcSupported ? 'Available' : 'Not Available'}
           </Text>
         </View>
-        <View style={[styles.divider, { backgroundColor: theme.border }]} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
         <View style={styles.item}>
           <View
             style={[
               styles.indicator,
-              { backgroundColor: nfcEnabled ? theme.success : theme.warning },
+              { backgroundColor: nfcEnabled ? colors.success : colors.warning },
             ]}
           />
-          <Text style={[styles.label, { color: theme.text }]}>NFC Status</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>
+            NFC Status
+          </Text>
           <Text style={[styles.value, { color: getStatusColor() }]}>
             {nfcEnabled ? 'Enabled' : 'Disabled'}
           </Text>
@@ -60,23 +65,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   indicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginBottom: 8,
+    width: 10,
+    height: 10,
+    borderRadius: Radius.full,
+    marginBottom: Spacing.sm,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 4,
+    ...TextStyles.label,
+    marginBottom: Spacing.xs,
   },
   value: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...TextStyles.bodyMedium,
   },
   divider: {
     width: 1,
     height: 40,
-    marginHorizontal: 20,
+    marginHorizontal: Spacing.lg,
   },
 });

@@ -1,15 +1,16 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme } from '../theme/useTheme';
+import { useTheme } from '../theme/ThemeContext';
+import { BorderWidth, Layout, Radius, Spacing } from '../theme/tokens';
 
 export function Card({ children }: { children: React.ReactNode }) {
-  const { theme } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <View
       style={[
         styles.card,
-        { backgroundColor: theme.cardBackground, borderColor: theme.border },
+        { backgroundColor: colors.surface, borderColor: colors.border },
       ]}
     >
       {children}
@@ -19,15 +20,10 @@ export function Card({ children }: { children: React.ReactNode }) {
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    marginHorizontal: Layout.screenPadding,
+    marginBottom: Spacing.lg,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    borderWidth: BorderWidth.normal,
   },
 });

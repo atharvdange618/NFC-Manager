@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { useTheme } from '../theme/useTheme';
+import { useTheme } from '../theme/ThemeContext';
+import { FontFamily, Radius, Spacing, TextStyles } from '../theme/tokens';
 
 interface PrimaryButtonProps {
   label: string;
@@ -8,36 +9,31 @@ interface PrimaryButtonProps {
 }
 
 export function PrimaryButton({ label, onPress }: PrimaryButtonProps) {
-  const { theme } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor: theme.primary }]}
+      style={[styles.button, { backgroundColor: colors.accent }]}
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: colors.textOnAccent }]}>
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#007AFF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
   },
   label: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.2,
+    ...TextStyles.body,
+    fontFamily: FontFamily.semiBold,
   },
 });

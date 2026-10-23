@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useTheme } from '../theme/useTheme';
+import { useTheme } from '../theme/ThemeContext';
+import { Spacing, TextStyles } from '../theme/tokens';
 
 interface SectionHeaderProps {
   title: string;
@@ -8,12 +9,12 @@ interface SectionHeaderProps {
 }
 
 export function SectionHeader({ title, description }: SectionHeaderProps) {
-  const { theme } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.header}>
-      <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
-      <Text style={[styles.description, { color: theme.textSecondary }]}>
+      <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
+      <Text style={[styles.description, { color: colors.textSecondary }]}>
         {description}
       </Text>
     </View>
@@ -22,15 +23,13 @@ export function SectionHeader({ title, description }: SectionHeaderProps) {
 
 const styles = StyleSheet.create({
   header: {
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 4,
+    ...TextStyles.title,
+    marginBottom: Spacing.xs,
   },
   description: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TextStyles.body,
   },
 });

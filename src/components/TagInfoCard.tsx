@@ -1,13 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { TagEvent } from 'react-native-nfc-manager';
-import { useTheme } from '../theme/useTheme';
+import { useTheme } from '../theme/ThemeContext';
+import { FontFamily, Radius, Spacing, TextStyles } from '../theme/tokens';
 import { decodeRecord, recordTypeName } from '../nfc/ndef';
 import { Card } from './Card';
 import { SectionHeader } from './SectionHeader';
 
 export function TagInfoCard({ tag }: { tag: TagEvent }) {
-  const { theme } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <Card>
@@ -17,31 +18,37 @@ export function TagInfoCard({ tag }: { tag: TagEvent }) {
       />
       <View style={styles.container}>
         <View style={styles.row}>
-          <Text style={[styles.label, { color: theme.textSecondary }]}>ID:</Text>
-          <Text style={[styles.value, { color: theme.text }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>ID:</Text>
+          <Text style={[styles.value, { color: colors.textPrimary }]}>
             {tag.id || 'N/A'}
           </Text>
         </View>
         <View style={styles.row}>
-          <Text style={[styles.label, { color: theme.textSecondary }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>
             Technologies:
           </Text>
-          <Text style={[styles.value, { color: theme.text }]}>
+          <Text style={[styles.value, { color: colors.textPrimary }]}>
             {tag.techTypes?.join(', ') || 'N/A'}
           </Text>
         </View>
         {tag.ndefMessage && tag.ndefMessage.length > 0 && (
           <View style={styles.ndefContainer}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>
               NDEF Records:
             </Text>
             {tag.ndefMessage.map((record, index) => (
-              <View key={index} style={styles.ndefRecord}>
-                <Text style={[styles.ndefRecordText, { color: theme.text }]}>
+              <View
+                key={index}
+                style={[
+                  styles.ndefRecord,
+                  { backgroundColor: colors.surfaceInset },
+                ]}
+              >
+                <Text style={[styles.ndefRecordText, { color: colors.textPrimary }]}>
                   <Text style={styles.bold}>Type:</Text>{' '}
                   {record.type ? recordTypeName(record) : 'Unknown'}
                 </Text>
-                <Text style={[styles.ndefRecordText, { color: theme.text }]}>
+                <Text style={[styles.ndefRecordText, { color: colors.textPrimary }]}>
                   <Text style={styles.bold}>Payload:</Text>{' '}
                   {record.payload ? decodeRecord(record) : 'N/A'}
                 </Text>
@@ -56,39 +63,34 @@ export function TagInfoCard({ tag }: { tag: TagEvent }) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12,
+    gap: Spacing.md,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 8,
+    gap: Spacing.sm,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
+    ...TextStyles.label,
     minWidth: 80,
   },
   value: {
-    fontSize: 14,
+    ...TextStyles.mono,
     flex: 1,
-    fontFamily: 'monospace',
   },
   ndefContainer: {
-    marginTop: 8,
-    gap: 8,
+    marginTop: Spacing.sm,
+    gap: Spacing.sm,
   },
   ndefRecord: {
-    backgroundColor: 'rgba(128, 128, 128, 0.1)',
-    padding: 12,
-    borderRadius: 8,
-    marginLeft: 12,
+    padding: Spacing.md,
+    borderRadius: Radius.sm,
+    marginLeft: Spacing.md,
   },
   ndefRecordText: {
-    fontSize: 13,
-    lineHeight: 18,
-    fontFamily: 'monospace',
+    ...TextStyles.mono,
   },
   bold: {
-    fontWeight: '600',
+    fontFamily: FontFamily.monoMedium,
   },
 });
