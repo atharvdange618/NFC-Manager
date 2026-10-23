@@ -68,9 +68,9 @@ Source: `Shikai/constants/theme.ts`, `constants/themes.ts`, `contexts/ThemeConte
 Build one at a time, with tests for each, and commit each one on its own.
 
 ### 3.1 More record types (3 hours)
-- [ ] Write: Wi-Fi (`application/vnd.wfa.wsc`), contact (vCard), phone (`tel:`), email (`mailto:`), SMS (`sms:`), location (`geo:`).
-- [ ] Read: decode each type into a readable card with a useful action (call, open map, join Wi-Fi).
-- [ ] Replace `RecordKindToggle` with a type picker.
+- [x] Write: Wi-Fi (`application/vnd.wfa.wsc`), contact (vCard), phone (`tel:`), email (`mailto:`), SMS (`sms:`), location (`geo:`).
+- [x] Read: decode each type into a readable card with a useful action (call, open map, join Wi-Fi). Joining happens in Android when the tag is tapped with the app closed; the card copies the password and opens Wi-Fi settings.
+- [x] Replace `RecordKindToggle` with a type picker. It became `SegmentedControl`, which the Wi-Fi security choice reuses.
 
 ### 3.2 Scan history (2 to 3 hours)
 - [ ] Save every read to MMKV on the phone: time, tag ID, tech, records.
@@ -127,3 +127,4 @@ Build one at a time, with tests for each, and commit each one on its own.
 | 2026-10-22 | Phase 0 code done: Expo SDK 57, RN 0.86.3, nfc-manager v4, Jest on jest-expo. Debug build compiles. Waiting on phone check. |
 | 2026-10-23 | Phase 1 code done: tokens, Light and Dark themes, MMKV theme storage, Inter and JetBrains Mono. Temporary theme switch in the header until Settings exists. 38 tests pass. Verified on the phone: both themes look right and the choice survives a restart. |
 | 2026-10-23 | Phase 2 code done: expo-router tabs, NfcProvider shared across tabs, result sheet via `formSheet`, haptics, Settings with generated license list. SDK 57 pins for react-dom, worklets, reanimated and gesture-handler in `overrides` (expo-router pulls them in). Removed the banner accent stripe and the emoji heading; muted and inactive-tab grays now pass WCAG AA. 43 tests pass. Verified on the phone in both themes. |
+| 2026-10-23 | Phase 3.1 done: eight record types in `src/nfc/records.ts`, one payload union for write and read. Wi-Fi bytes written by hand because the library encodes open networks as `0x0000`, not `0x0001`. Added expo-clipboard, expo-intent-launcher and expo-location. 78 tests pass. Verified on the phone: a Wi-Fi tag joins the network and Add to contacts fills the form. |
