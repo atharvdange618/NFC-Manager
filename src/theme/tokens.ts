@@ -97,6 +97,15 @@ export const BorderWidth = {
   thick: 1.5,
 } as const;
 
+export const IconSize = {
+  xs: 12,
+  sm: 16,
+  md: 20,
+  lg: 24,
+  xl: 28,
+  xxl: 32,
+} as const;
+
 export const Layout = {
   screenPadding: Spacing.lg,
 } as const;
