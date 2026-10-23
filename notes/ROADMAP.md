@@ -16,6 +16,7 @@ This file tracks the work from the current single-screen app to a v1 we can publ
 | Navigation | Bottom tabs: Read, Write, History, Settings. No drawer. | Four destinations fit a tab bar. A drawer would give users a second way to reach the same screens. |
 | Password protection | Both: password on the tag and an app lock | The tag password stops other people from rewriting your tags. The app lock protects scan history on the phone. |
 | Package name | `com.atharvdange618.nfcmanager` (to confirm) | Matches Shikai's pattern. Play Store package names can never change after the first upload. |
+| No vibecode UI | Follow the rules in the global `remove-vibecode` skill. No accent stripes on a card edge, no emoji in headings, no gradient text. | Those patterns make an app look generated, not designed. |
 
 ## Open questions
 
@@ -55,11 +56,11 @@ Source: `Shikai/constants/theme.ts`, `constants/themes.ts`, `contexts/ThemeConte
 
 ## Phase 2: Navigation shell (3 hours)
 
-- [ ] expo-router tabs: Read, Write, History (empty state for now), Settings.
-- [ ] Move today's read flow into Read and the write flow into Write.
-- [ ] Bottom sheet for scan results and write confirmations.
-- [ ] Settings: theme toggle, About (version, author, links to `@atharvdange618` on X and GitHub), open-source licenses, privacy policy link.
-- [ ] Haptics on scan success and failure.
+- [x] expo-router tabs: Read, Write, History (empty state for now), Settings.
+- [x] Move today's read flow into Read and the write flow into Write.
+- [x] Bottom sheet for scan results and write confirmations. Uses expo-router's native `formSheet`, no sheet library.
+- [x] Settings: theme toggle, About (version, author, links to `@atharvdangedev` on X and GitHub), open-source licenses (`npm run licenses`). Privacy policy link moves to Phase 5 with the page.
+- [x] Haptics on scan success and failure.
 - **Verify:** the full read and write flow works through the tabs. No new features yet. Ship this as an internal build.
 
 ## Phase 3: Features
@@ -109,7 +110,7 @@ Build one at a time, with tests for each, and commit each one on its own.
 
 ## Phase 5: Play Store (3 hours, plus 14 days if closed testing applies)
 
-- [ ] Privacy policy page, hosted on GitHub Pages like Shikai's `docs/`. State that scan history stays on the phone.
+- [ ] Privacy policy page, hosted on GitHub Pages like Shikai's `docs/`. State that scan history stays on the phone. Add its row to Settings.
 - [ ] Data safety form: no data collected or shared.
 - [ ] Content rating questionnaire, category (Tools), store listing text.
 - [ ] Target the API level Play requires at upload time. Check the Play Console.
@@ -125,3 +126,4 @@ Build one at a time, with tests for each, and commit each one on its own.
 | 2026-10-22 | Plan written. Shikai tokens pulled. Stack and password decisions made. |
 | 2026-10-22 | Phase 0 code done: Expo SDK 57, RN 0.86.3, nfc-manager v4, Jest on jest-expo. Debug build compiles. Waiting on phone check. |
 | 2026-10-23 | Phase 1 code done: tokens, Light and Dark themes, MMKV theme storage, Inter and JetBrains Mono. Temporary theme switch in the header until Settings exists. 38 tests pass. Verified on the phone: both themes look right and the choice survives a restart. |
+| 2026-10-23 | Phase 2 code done: expo-router tabs, NfcProvider shared across tabs, result sheet via `formSheet`, haptics, Settings with generated license list. SDK 57 pins for react-dom, worklets, reanimated and gesture-handler in `overrides` (expo-router pulls them in). Removed the banner accent stripe and the emoji heading; muted and inactive-tab grays now pass WCAG AA. 43 tests pass. Verified on the phone in both themes. |
