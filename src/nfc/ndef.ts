@@ -20,11 +20,6 @@ export function isUriRecord(record: NdefRecord): boolean {
   return isWellKnown(record, Ndef.RTD_URI);
 }
 
-// Records decodeRecord can turn into readable text.
-export function isKnownRecord(record: NdefRecord): boolean {
-  return isTextRecord(record) || isUriRecord(record);
-}
-
 // Text and URI records decode to their string; anything else falls back to hex.
 export function decodeRecord(record: NdefRecord): string {
   const payload = new Uint8Array(record.payload);

@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import NfcManager, { Ndef, NfcError, TagEvent } from 'react-native-nfc-manager';
 import { withNdef } from './withNdef';
-import { decodeRecord, isKnownRecord } from './ndef';
-
-export type RecordKind = 'text' | 'url';
-
-// http(s) scheme, then at least one non-space character.
-const URL_PATTERN = /^https?:\/\/\S+$/i;
+import {
+  describeRecord,
+  parseRecord,
+  toRecord,
+  validatePayload,
+  WritePayload,
+} from './records';
 
 export interface NfcMessage {
   kind: 'info' | 'success' | 'error';
@@ -94,10 +95,7 @@ export function useNfc() {
 
         let parsed = 'No NDEF data.';
         if (tag?.ndefMessage?.length) {
-          const rec = tag.ndefMessage[0];
-          parsed = isKnownRecord(rec)
-            ? decodeRecord(rec)
-            : `Raw payload: ${decodeRecord(rec)}`;
+          parsed = describeRecord(parseRecord(tag.ndefMessage[0]));
         }
         return { kind: 'success', text: `Tag read: ${parsed}` };
       });
@@ -116,7 +114,7 @@ export function useNfc() {
   }, []);
 
   const writeNfc = useCallback(
-    async (input: string, kind: RecordKind): Promise<NfcOutcome | null> => {
+    async (payload: WritePayload): Promise<NfcOutcome | null> => {
       if (pending) {
         return null;
       }
@@ -129,19 +127,9 @@ export function useNfc() {
           false,
         );
       }
-      // Text is written as typed; a URL is trimmed so stray spaces don't break it.
-      const value = kind === 'url' ? input.trim() : input;
-      if (kind === 'url' && !URL_PATTERN.test(value)) {
-        return finish(
-          {
-            kind: 'error',
-            text: 'Enter a URL starting with http:// or https://',
-          },
-          false,
-        );
-      }
-      if (!value.trim()) {
-        return finish({ kind: 'error', text: 'Enter text to write' }, false);
+      const invalid = validatePayload(payload);
+      if (invalid) {
+        return finish({ kind: 'error', text: invalid }, false);
       }
 
       setMessage({ kind: 'info', text: 'Ready to write...' });
@@ -149,11 +137,9 @@ export function useNfc() {
       let result: NfcMessage;
       try {
         result = await withNdef(async (): Promise<NfcMessage> => {
-          const record =
-            kind === 'url' ? Ndef.uriRecord(value) : Ndef.textRecord(value);
-          const bytes = Ndef.encodeMessage([record]);
+          const bytes = Ndef.encodeMessage([toRecord(payload)]);
           await NfcManager.ndefHandler.writeNdefMessage(bytes);
-          return { kind: 'success', text: `Wrote: "${value}"` };
+          return { kind: 'success', text: `Wrote: "${describeRecord(payload)}"` };
         });
       } catch (ex: unknown) {
         result = failureMessage('Write', ex);

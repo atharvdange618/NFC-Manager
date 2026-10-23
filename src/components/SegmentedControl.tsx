@@ -8,19 +8,18 @@ import {
   Spacing,
   TextStyles,
 } from '../theme/tokens';
-import { RecordKind } from '../nfc/useNfc';
 
-const OPTIONS: { kind: RecordKind; label: string }[] = [
-  { kind: 'text', label: 'Text' },
-  { kind: 'url', label: 'URL' },
-];
-
-interface RecordKindToggleProps {
-  value: RecordKind;
-  onChange: (kind: RecordKind) => void;
+interface SegmentedControlProps<T extends string> {
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (value: T) => void;
 }
 
-export function RecordKindToggle({ value, onChange }: RecordKindToggleProps) {
+export function SegmentedControl<T extends string>({
+  options,
+  value,
+  onChange,
+}: SegmentedControlProps<T>) {
   const { colors } = useTheme();
 
   return (
@@ -30,16 +29,16 @@ export function RecordKindToggle({ value, onChange }: RecordKindToggleProps) {
         { backgroundColor: colors.surfaceInset, borderColor: colors.border },
       ]}
     >
-      {OPTIONS.map(option => {
-        const selected = option.kind === value;
+      {options.map(option => {
+        const selected = option.value === value;
         return (
           <TouchableOpacity
-            key={option.kind}
+            key={option.value}
             style={[
               styles.segment,
               selected && { backgroundColor: colors.accent },
             ]}
-            onPress={() => onChange(option.kind)}
+            onPress={() => onChange(option.value)}
             accessibilityRole="button"
             accessibilityState={{ selected }}
             activeOpacity={0.8}

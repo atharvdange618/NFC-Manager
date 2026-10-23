@@ -1,7 +1,6 @@
 import { Ndef, NdefRecord } from 'react-native-nfc-manager';
 import {
   decodeRecord,
-  isKnownRecord,
   isTextRecord,
   recordTypeName,
 } from '../ndef';
@@ -81,13 +80,6 @@ describe('URI records', () => {
   it('decodes a URI record with a byte-array type, as Android returns it', () => {
     expect(decodeRecord({ ...uriRecord(), type: [0x55] })).toBe(
       'https://x.com/atharvdangedev',
-    );
-  });
-
-  it('is recognised as a known record', () => {
-    expect(isKnownRecord({ ...uriRecord(), type: [0x55] })).toBe(true);
-    expect(isKnownRecord({ tnf: Ndef.TNF_MIME_MEDIA, type: 'x', payload: [] })).toBe(
-      false,
     );
   });
 });
