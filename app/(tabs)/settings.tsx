@@ -11,6 +11,7 @@ import { Octicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { Screen } from '../../src/components/Screen';
+import { addSampleScans } from '../../src/devSamples';
 import { useTheme, useThemeContext } from '../../src/theme/ThemeContext';
 import {
   BorderWidth,
@@ -132,6 +133,20 @@ export default function SettingsScreen() {
           last
         />
       </Section>
+
+      {__DEV__ ? (
+        <Section title="Debug">
+          <Row
+            label="Add sample scans"
+            icon="plus"
+            onPress={() => {
+              addSampleScans();
+              router.navigate('/history');
+            }}
+            last
+          />
+        </Section>
+      ) : null}
     </Screen>
   );
 }
