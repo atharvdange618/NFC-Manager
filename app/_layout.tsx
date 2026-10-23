@@ -52,6 +52,7 @@ function RootStack() {
           }}
         />
         <Stack.Screen name="licenses" options={{ title: 'Open-source licenses' }} />
+        <Stack.Screen name="scan/[id]" options={{ title: 'Scan' }} />
       </Stack>
     </>
   );

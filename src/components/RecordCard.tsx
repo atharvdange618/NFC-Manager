@@ -4,7 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { useTheme } from '../theme/ThemeContext';
 import { Spacing, TextStyles } from '../theme/tokens';
-import { ParsedRecord, payloadUri } from '../nfc/records';
+import { ParsedRecord, payloadUri, WritePayload } from '../nfc/records';
 import { Card } from './Card';
 import { RECORD_TYPES } from './RecordTypePicker';
 import { SecondaryButton } from './SecondaryButton';
@@ -19,7 +19,7 @@ interface Action {
 const copy = (value: string) => () => Clipboard.setStringAsync(value);
 
 // Label and value rows; empty optional fields are left out.
-function details(p: ParsedRecord): [string, string][] {
+export function recordDetails(p: ParsedRecord): [string, string][] {
   const rows: [string, string][] = (() => {
     switch (p.kind) {
       case 'text':
@@ -114,8 +114,14 @@ function actions(p: ParsedRecord): Action[] {
   }
 }
 
+interface RecordCardProps {
+  record: ParsedRecord;
+  // Shown for every kind the Write tab can write.
+  onWriteAgain?: (payload: WritePayload) => void;
+}
+
 // One decoded NDEF record with the actions that fit its type.
-export function RecordCard({ record }: { record: ParsedRecord }) {
+export function RecordCard({ record, onWriteAgain }: RecordCardProps) {
   const { colors } = useTheme();
   const [error, setError] = useState<string | null>(null);
   const type = RECORD_TYPES.find(t => t.kind === record.kind);
@@ -137,7 +143,7 @@ export function RecordCard({ record }: { record: ParsedRecord }) {
         description={type?.description ?? 'A record type this app does not decode'}
       />
       <View style={styles.rows}>
-        {details(record).map(([label, value]) => (
+        {recordDetails(record).map(([label, value]) => (
           <View key={label}>
             <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
             <Text
@@ -160,6 +166,13 @@ export function RecordCard({ record }: { record: ParsedRecord }) {
           onPress={() => run(action)}
         />
       ))}
+      {onWriteAgain && record.kind !== 'unknown' ? (
+        <SecondaryButton
+          label="Write this again"
+          icon="pencil"
+          onPress={() => onWriteAgain(record)}
+        />
+      ) : null}
       {error ? (
         <Text style={[styles.error, { color: colors.danger }]}>{error}</Text>
       ) : null}

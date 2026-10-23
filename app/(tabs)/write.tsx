@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { KeyboardTypeOptions, StyleSheet, Text, TextInput } from 'react-native';
 import * as Location from 'expo-location';
+import { useLocalSearchParams } from 'expo-router';
 import { Screen } from '../../src/components/Screen';
 import { Card } from '../../src/components/Card';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
@@ -138,6 +139,17 @@ export default function WriteScreen() {
     lng: '',
   });
   const [security, setSecurity] = useState<WifiSecurity>('wpa2');
+  // History's "write this again" sends a payload; `at` refills on a repeat tap.
+  const params = useLocalSearchParams<{ payload?: string; at?: string }>();
+  useEffect(() => {
+    if (!params.payload) return;
+    const payload: WritePayload = JSON.parse(params.payload);
+    const { kind: next, ...values } = payload;
+    setKind(next);
+    if (payload.kind === 'wifi') setSecurity(payload.security);
+    // Payload keys match field names; toPayload ignores the extra `security`.
+    setFields(prev => ({ ...prev, ...values }));
+  }, [params.payload, params.at]);
   const [locating, setLocating] = useState(false);
   // Cancels and failed checks show here; finished writes open the sheet.
   const [notice, setNotice] = useState<NfcMessage | null>(null);
