@@ -19,7 +19,7 @@ const TITLES = {
 // native header, so the title is part of the content.
 export default function ResultSheet() {
   const { colors } = useTheme();
-  const { message, scannedTag } = useNfcContext();
+  const { message, scannedTag, scannedChip } = useNfcContext();
   const { action } = useLocalSearchParams<{ action: 'read' | 'write' }>();
 
   if (!message || message.kind === 'info') return null;
@@ -49,7 +49,7 @@ export default function ResultSheet() {
           {scannedTag.ndefMessage?.map((record, index) => (
             <RecordCard key={index} record={parseRecord(record)} />
           ))}
-          <TagInfoCard tag={scannedTag} />
+          <TagInfoCard tag={scannedTag} chip={scannedChip} />
         </>
       ) : null}
 

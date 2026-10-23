@@ -77,6 +77,7 @@ Build one at a time, with tests for each, and commit each one on its own.
 - [x] History tab: list, detail, copy, share, "write this again", delete, clear all.
 
 ### 3.3 Tag info (2 hours)
+- WIP 3.3: code done, gates pass (86 tests). Read connects NfcA then Ndef, runs GET_VERSION, TagInfoCard shows chip, ID, tech, NDEF used/total, writable, can lock. Not yet checked on device; not committed.
 - [ ] Show chip type, tag ID, tech list, NDEF capacity used and total, writable, can be made read-only.
 - [ ] Detect NTAG213/215/216 with `GET_VERSION` (0x60). Phase 3.6 reuses this.
 

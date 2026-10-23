@@ -4,11 +4,27 @@ import { TagEvent } from 'react-native-nfc-manager';
 import { useTheme } from '../theme/ThemeContext';
 import { FontFamily, Radius, Spacing, TextStyles } from '../theme/tokens';
 import { decodeRecord, recordTypeName } from '../nfc/ndef';
+import { Chip, ndefBytesUsed } from '../nfc/tagInfo';
 import { Card } from './Card';
 import { SectionHeader } from './SectionHeader';
 
-export function TagInfoCard({ tag }: { tag: TagEvent }) {
+function yesNo(value: boolean | null | undefined): string {
+  return value == null ? 'Unknown' : value ? 'Yes' : 'No';
+}
+
+export function TagInfoCard({ tag, chip }: { tag: TagEvent; chip: Chip | null }) {
   const { colors } = useTheme();
+  const rows: [string, string][] = [
+    ['Chip', chip ?? tag.type ?? 'Unknown'],
+    ['ID', tag.id || 'N/A'],
+    ['Technologies', tag.techTypes?.join(', ') || 'N/A'],
+    [
+      'NDEF size',
+      tag.maxSize ? `${ndefBytesUsed(tag)} of ${tag.maxSize} bytes` : 'Not NDEF',
+    ],
+    ['Writable', yesNo(tag.isWritable)],
+    ['Can lock', yesNo(tag.canMakeReadOnly)],
+  ];
 
   return (
     <Card>
@@ -17,20 +33,16 @@ export function TagInfoCard({ tag }: { tag: TagEvent }) {
         description="Details from the last scanned tag"
       />
       <View style={styles.container}>
-        <View style={styles.row}>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>ID:</Text>
-          <Text style={[styles.value, { color: colors.textPrimary }]}>
-            {tag.id || 'N/A'}
-          </Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>
-            Technologies:
-          </Text>
-          <Text style={[styles.value, { color: colors.textPrimary }]}>
-            {tag.techTypes?.join(', ') || 'N/A'}
-          </Text>
-        </View>
+        {rows.map(([label, value]) => (
+          <View key={label} style={styles.row}>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>
+              {label}:
+            </Text>
+            <Text style={[styles.value, { color: colors.textPrimary }]}>
+              {value}
+            </Text>
+          </View>
+        ))}
         {tag.ndefMessage && tag.ndefMessage.length > 0 && (
           <View style={styles.ndefContainer}>
             <Text style={[styles.label, { color: colors.textSecondary }]}>

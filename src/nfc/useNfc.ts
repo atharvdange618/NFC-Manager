@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import NfcManager, { Ndef, NfcError, TagEvent } from 'react-native-nfc-manager';
+import NfcManager, {
+  Ndef,
+  NfcError,
+  NfcTech,
+  TagEvent,
+} from 'react-native-nfc-manager';
 import { withNdef } from './withNdef';
 import { addScan } from '../history';
+import { Chip, readChip } from './tagInfo';
 import {
   describeRecord,
   parseRecord,
@@ -37,6 +43,7 @@ export function useNfc() {
   const [nfcSupported, setNfcSupported] = useState(false);
   const [nfcEnabled, setNfcEnabled] = useState(false);
   const [scannedTag, setScannedTag] = useState<TagEvent | null>(null);
+  const [scannedChip, setScannedChip] = useState<Chip | null>(null);
   const [message, setMessage] = useState<NfcMessage | null>(null);
   // Which action is waiting for a tag; only one native request can run at a time.
   const [pending, setPending] = useState<'read' | 'write' | null>(null);
@@ -86,6 +93,7 @@ export function useNfc() {
 
     setMessage({ kind: 'info', text: 'Ready to scan...' });
     setScannedTag(null);
+    setScannedChip(null);
     setPending('read');
 
     let result: NfcMessage;
@@ -94,13 +102,15 @@ export function useNfc() {
         const tag = await NfcManager.getTag();
         setScannedTag(tag);
         if (tag) addScan(tag);
+        // NfcA first so GET_VERSION can run; getTag still has the NDEF data.
+        setScannedChip(await readChip());
 
         let parsed = 'No NDEF data.';
         if (tag?.ndefMessage?.length) {
           parsed = describeRecord(parseRecord(tag.ndefMessage[0]));
         }
         return { kind: 'success', text: `Tag read: ${parsed}` };
-      });
+      }, [NfcTech.NfcA, NfcTech.Ndef]);
     } catch (ex: unknown) {
       result = failureMessage('Read', ex);
     } finally {
@@ -157,6 +167,7 @@ export function useNfc() {
     nfcSupported,
     nfcEnabled,
     scannedTag,
+    scannedChip,
     message,
     pending,
     readNfc,
