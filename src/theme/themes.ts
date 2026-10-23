@@ -1,4 +1,5 @@
-// Shikai's Light and Dark palettes, minus the GitHub-only keys.
+// Shikai's Light and Dark palettes, minus the GitHub-only keys. Muted and
+// inactive-tab grays are darkened (light) or lightened (dark) to pass WCAG AA.
 export type ThemeName = 'light' | 'dark';
 
 export interface ColorTokens {
@@ -63,7 +64,7 @@ const Light: Theme = {
 
     textPrimary: '#1A2332',
     textSecondary: '#5A6B7B',
-    textMuted: '#98A9B8',
+    textMuted: '#636E78',
     textOnAccent: '#F5F5F5',
     textLink: '#2563EB',
 
@@ -77,7 +78,7 @@ const Light: Theme = {
     tabBarBackground: '#FAF9F6',
     tabBarBorder: '#D9D3C7',
     tabBarActive: '#3B82F6',
-    tabBarInactive: '#98A9B8',
+    tabBarInactive: '#636E78',
   },
 };
 
@@ -102,7 +103,7 @@ const Dark: Theme = {
 
     textPrimary: '#E6EDF3',
     textSecondary: '#8B949E',
-    textMuted: '#6E7681',
+    textMuted: '#888F98',
     textOnAccent: '#0D1117',
     textLink: '#58A6FF',
 
@@ -116,7 +117,7 @@ const Dark: Theme = {
     tabBarBackground: '#161B22',
     tabBarBorder: '#30363D',
     tabBarActive: '#58A6FF',
-    tabBarInactive: '#6E7681',
+    tabBarInactive: '#7E858F',
   },
 };
 

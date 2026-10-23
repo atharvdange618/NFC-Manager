@@ -14,7 +14,7 @@ export function MessageBanner({ message }: { message: NfcMessage }) {
   }[message.kind];
 
   return (
-    <View style={[styles.banner, { backgroundColor, borderColor: color }]}>
+    <View style={[styles.banner, { backgroundColor }]}>
       <Text style={[styles.text, { color }]}>{message.text}</Text>
     </View>
   );
@@ -26,7 +26,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
     borderRadius: Radius.md,
     padding: Spacing.md,
-    borderLeftWidth: 3,
   },
   text: {
     ...TextStyles.bodyMedium,

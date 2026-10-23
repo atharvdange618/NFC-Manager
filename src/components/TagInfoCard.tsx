@@ -13,7 +13,7 @@ export function TagInfoCard({ tag }: { tag: TagEvent }) {
   return (
     <Card>
       <SectionHeader
-        title="🏷️ Tag Information"
+        title="Tag information"
         description="Details from the last scanned tag"
       />
       <View style={styles.container}>
