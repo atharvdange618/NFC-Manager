@@ -1,8 +1,9 @@
-import React from 'react';
-import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Card } from '../../src/components/Card';
+import { ConfirmDialog } from '../../src/components/ConfirmDialog';
 import { RecordCard, recordDetails } from '../../src/components/RecordCard';
 import { SecondaryButton } from '../../src/components/SecondaryButton';
 import { SectionHeader } from '../../src/components/SectionHeader';
@@ -36,22 +37,10 @@ export default function ScanDetail() {
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const scan = useHistory().find(s => s.id === id);
+  const [confirming, setConfirming] = useState(false);
 
   // Gone after a delete, or from a stale link.
   if (!scan) return null;
-
-  const confirmDelete = () =>
-    Alert.alert('Delete this scan?', undefined, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          router.back();
-          deleteScan(scan.id);
-        },
-      },
-    ]);
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
@@ -94,8 +83,23 @@ export default function ScanDetail() {
           icon="share-android"
           onPress={() => Share.share({ message: scanText(scan) })}
         />
-        <SecondaryButton label="Delete" icon="trash" onPress={confirmDelete} />
+        <SecondaryButton
+          label="Delete"
+          icon="trash"
+          onPress={() => setConfirming(true)}
+        />
       </View>
+      <ConfirmDialog
+        visible={confirming}
+        title="Delete this scan?"
+        confirmLabel="Delete"
+        onConfirm={() => {
+          setConfirming(false);
+          router.back();
+          deleteScan(scan.id);
+        }}
+        onCancel={() => setConfirming(false)}
+      />
     </ScrollView>
   );
 }

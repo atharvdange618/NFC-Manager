@@ -1,7 +1,8 @@
-import React from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Octicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { ConfirmDialog } from '../../src/components/ConfirmDialog';
 import { Screen } from '../../src/components/Screen';
 import { SecondaryButton } from '../../src/components/SecondaryButton';
 import { clearHistory, scanTitle, useHistory } from '../../src/history';
@@ -15,18 +16,12 @@ import {
   TextStyles,
 } from '../../src/theme/tokens';
 
-function confirmClear() {
-  Alert.alert('Clear history?', 'This deletes every saved scan.', [
-    { text: 'Cancel', style: 'cancel' },
-    { text: 'Clear all', style: 'destructive', onPress: clearHistory },
-  ]);
-}
-
 // ponytail: maps inside the Screen ScrollView; move to a FlatList if
 // history gets long enough to scroll slowly.
 export default function HistoryScreen() {
   const { colors } = useTheme();
   const scans = useHistory();
+  const [confirming, setConfirming] = useState(false);
 
   if (!scans.length) {
     return (
@@ -87,8 +82,23 @@ export default function HistoryScreen() {
         ))}
       </View>
       <View style={styles.footer}>
-        <SecondaryButton label="Clear all" icon="trash" onPress={confirmClear} />
+        <SecondaryButton
+          label="Clear all"
+          icon="trash"
+          onPress={() => setConfirming(true)}
+        />
       </View>
+      <ConfirmDialog
+        visible={confirming}
+        title="Clear history?"
+        message="This deletes every saved scan."
+        confirmLabel="Clear all"
+        onConfirm={() => {
+          setConfirming(false);
+          clearHistory();
+        }}
+        onCancel={() => setConfirming(false)}
+      />
     </Screen>
   );
 }
