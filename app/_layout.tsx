@@ -51,6 +51,7 @@ function RootStack() {
             contentStyle: { backgroundColor: colors.surface },
           }}
         />
+        <Stack.Screen name="licenses" options={{ title: 'Open-source licenses' }} />
       </Stack>
     </>
   );

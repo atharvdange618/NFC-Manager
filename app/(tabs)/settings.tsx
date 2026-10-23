@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Octicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { Screen } from '../../src/components/Screen';
 import { useTheme, useThemeContext } from '../../src/theme/ThemeContext';
 import {
@@ -123,6 +124,11 @@ export default function SettingsScreen() {
           label="Source on GitHub"
           icon="link-external"
           onPress={() => Linking.openURL(GITHUB_URL)}
+        />
+        <Row
+          label="Open-source licenses"
+          icon="chevron-right"
+          onPress={() => router.push('/licenses')}
           last
         />
       </Section>

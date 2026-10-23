@@ -6,7 +6,8 @@
     "android": "expo run:android",
     "lint": "eslint .",
     "start": "expo start",
-    "test": "jest"
+    "test": "jest",
+    "licenses": "node scripts/licenses.js"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
