@@ -107,7 +107,7 @@ Build one at a time, with tests for each, and commit each one on its own.
 - [ ] Monochrome icon for Android 13 themed icons.
 - [ ] Splash, dark and light variants (`expo-splash-screen`).
 - [ ] Play Store icon 512x512 and feature graphic 1024x500.
-- [ ] Phone screenshots of each tab, in dark and light.
+- [x] Phone screenshots of each tab, in dark and light.
 
 ## Phase 5: Play Store (3 hours, plus 14 days if closed testing applies)
 

@@ -38,8 +38,18 @@ Only one read or write can run at a time. Starting a second one while the first 
 ## Screenshots
 
 <div align="center">
-  <img src="./assets/light.jpg" alt="Light mode" width="250"/>
-  <img src="./assets/dark.jpg" alt="Dark mode" width="250"/>
+  <img src="./assets/screenshots/light-read.jpg" alt="Read (light)" width="180"/>
+  <img src="./assets/screenshots/light-write.jpg" alt="Write (light)" width="180"/>
+  <img src="./assets/screenshots/light-history.jpg" alt="History (light)" width="180"/>
+  <img src="./assets/screenshots/light-settings.jpg" alt="Settings (light)" width="180"/>
+</div>
+
+<div align="center">
+  <img src="./assets/screenshots/dark-read.jpg" alt="Read (dark)" width="180"/>
+  <img src="./assets/screenshots/dark-write.jpg" alt="Write (dark)" width="180"/>
+  <img src="./assets/screenshots/dark-history.jpg" alt="History (dark)" width="180"/>
+  <img src="./assets/screenshots/dark-settings.jpg" alt="Settings (dark)" width="180"/>
+  <img src="./assets/screenshots/dark-scan-detail.jpg" alt="Scan detail (dark)" width="180"/>
 </div>
 
 ## Getting Started
