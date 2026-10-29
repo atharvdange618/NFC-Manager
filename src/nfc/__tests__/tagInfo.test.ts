@@ -34,6 +34,16 @@ describe('ndefBytesUsed', () => {
     );
   });
 
+  it('counts a record in the shape Android returns it', () => {
+    const [record] = Ndef.decodeMessage(
+      Ndef.encodeMessage([Ndef.textRecord('hi')]),
+    );
+    const fromAndroid = { ...record, type: [0x54], id: '' };
+    expect(ndefBytesUsed({ ndefMessage: [fromAndroid] })).toBe(
+      Ndef.encodeMessage([Ndef.textRecord('hi')]).length,
+    );
+  });
+
   it('is null when the message cannot be re-encoded', () => {
     const spy = jest.spyOn(Ndef, 'encodeMessage').mockImplementation(() => {
       throw new Error('bad record');
