@@ -1,10 +1,18 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
-import NfcManager, { Ndef, NfcError } from 'react-native-nfc-manager';
+import NfcManager, { Ndef, NfcError, NfcEvents } from 'react-native-nfc-manager';
+import { router } from 'expo-router';
 import { NfcOutcome, useNfc } from '../useNfc';
 import { toRecord, WritePayload } from '../records';
 import { loadHistory } from '../../history';
 import { storage } from '../../storage';
+
+jest.mock('expo-router', () => ({ router: { push: jest.fn() } }));
+jest.mock('expo-haptics', () => ({
+  notificationAsync: jest.fn(),
+  NotificationFeedbackType: { Success: 'success', Error: 'error' },
+}));
 
 // v4 loads the compiled dist/ module, but ships its mock next to src/.
 jest.mock('react-native-nfc-manager/dist/src/NativeNfcManager', () =>
@@ -18,6 +26,9 @@ jest.mock('react-native-nfc-manager', () => {
     default: {
       isSupported: jest.fn(),
       start: jest.fn(),
+      registerTagEvent: jest.fn(),
+      setEventListener: jest.fn(),
+      getLaunchTagEvent: jest.fn(),
       isEnabled: jest.fn(),
       requestTechnology: jest.fn(),
       cancelTechnologyRequest: jest.fn(),
@@ -55,6 +66,7 @@ beforeEach(() => {
   nfc.isSupported.mockResolvedValue(true);
   nfc.start.mockResolvedValue();
   nfc.isEnabled.mockResolvedValue(true);
+  nfc.getLaunchTagEvent.mockResolvedValue(null);
   nfc.requestTechnology.mockResolvedValue(null);
   nfc.cancelTechnologyRequest.mockResolvedValue();
 });
@@ -73,6 +85,133 @@ describe('useNfc init', () => {
     expect(hook().message).toEqual({
       kind: 'error',
       text: 'NFC init error: boom',
+    });
+  });
+
+  describe('tag session', () => {
+    const platform = Platform as unknown as { OS: string };
+
+    afterEach(() => {
+      platform.OS = 'ios';
+    });
+
+    it('holds a reader-mode session on Android', async () => {
+      platform.OS = 'android';
+      await renderUseNfc();
+
+      expect(nfc.registerTagEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ isReaderModeEnabled: true }),
+      );
+    });
+
+    it('registers nothing on iOS', async () => {
+      await renderUseNfc();
+
+      expect(nfc.registerTagEvent).not.toHaveBeenCalled();
+    });
+
+    it('still reads and writes when the reader session is refused', async () => {
+      platform.OS = 'android';
+      nfc.registerTagEvent.mockRejectedValue(new Error('no reader mode'));
+
+      const hook = await renderUseNfc();
+
+      expect(hook().nfcSupported).toBe(true);
+      expect(hook().nfcEnabled).toBe(true);
+      expect(hook().message).toBeNull();
+    });
+  });
+});
+
+describe('tags that arrive on their own', () => {
+  const platform = Platform as unknown as { OS: string };
+
+  // The listener the hook gave the library for dispatched tags.
+  const discover = () => {
+    const calls = nfc.setEventListener.mock.calls as unknown as [
+      string,
+      ((tag: unknown) => void) | null,
+    ][];
+    return calls.find(([event]) => event === NfcEvents.DiscoverTag)?.[1] ?? undefined;
+  };
+
+  const textTag = () => {
+    const [record] = Ndef.decodeMessage(
+      Ndef.encodeMessage([Ndef.textRecord('hi')]),
+    );
+    return { id: '01', ndefMessage: [record] };
+  };
+
+  afterEach(() => {
+    platform.OS = 'ios';
+  });
+
+  it('opens the sheet for the tag that launched the app', async () => {
+    platform.OS = 'android';
+    nfc.getLaunchTagEvent.mockResolvedValue(textTag());
+
+    const hook = await renderUseNfc();
+
+    expect(hook().message).toEqual({ kind: 'success', text: 'Tag read: hi' });
+    expect(hook().scannedTag?.id).toBe('01');
+    expect(loadHistory()[0]).toMatchObject({ tagId: '01' });
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/result',
+      params: { action: 'read' },
+    });
+  });
+
+  it('opens the sheet for a tag dispatched while the app is in the background', async () => {
+    platform.OS = 'android';
+    const hook = await renderUseNfc();
+
+    await ReactTestRenderer.act(async () => {
+      discover()?.(textTag());
+    });
+
+    expect(hook().message).toEqual({ kind: 'success', text: 'Tag read: hi' });
+    expect(loadHistory()[0]).toMatchObject({ tagId: '01' });
+  });
+
+  it('saves and shows one scan when Android reports the same tag twice', async () => {
+    platform.OS = 'android';
+    await renderUseNfc();
+
+    await ReactTestRenderer.act(async () => {
+      discover()?.(textTag());
+      discover()?.(textTag());
+    });
+
+    expect(loadHistory()).toHaveLength(1);
+    expect(router.push).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves the tag to a read that is already waiting for it', async () => {
+    platform.OS = 'android';
+    nfc.requestTechnology.mockImplementation(
+      () =>
+        new Promise((_resolve, reject) => {
+          nfc.cancelTechnologyRequest.mockImplementation(async () => {
+            reject(new NfcError.UserCancel());
+          });
+        }),
+    );
+    const hook = await renderUseNfc();
+
+    let done: Promise<unknown> = Promise.resolve();
+    await ReactTestRenderer.act(async () => {
+      done = hook().readNfc();
+    });
+    await ReactTestRenderer.act(async () => {
+      discover()?.(textTag());
+    });
+
+    expect(loadHistory()).toEqual([]);
+    expect(router.push).not.toHaveBeenCalled();
+
+    await ReactTestRenderer.act(async () => {
+      hook().cancelScan();
+      await done;
     });
   });
 });
